@@ -11,8 +11,8 @@
 
 <!-- installable web app -->
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#04121F">
-<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#EDF3F7">
+<meta name="color-scheme" content="light dark">
 <link rel="icon" href="icons/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="icons/favicon-16.png" sizes="16x16" type="image/png">
 
@@ -25,6 +25,21 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 
 <link rel="preload" as="image" href="assets/beach.jpg" fetchpriority="high">
+
+<script>
+/* Runs before the stylesheet paints, so the app never flashes the wrong theme.
+   Sun mode is the default: this is used outdoors, in daylight, by someone
+   holding a phone at arm's length on open sand. The dark theme is the option,
+   not the baseline — it is there for the counter PC and for closing up after
+   dark. A saved choice always wins. */
+(function(){
+  try{
+    var saved = localStorage.getItem('bbm.theme');
+    document.documentElement.setAttribute('data-theme',
+      (saved === 'light' || saved === 'dark') ? saved : 'light');
+  }catch(e){ document.documentElement.setAttribute('data-theme','light'); }
+})();
+</script>
 <style>/* required styles */
 
 .leaflet-pane,
@@ -693,7 +708,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
      Deep navy field, soft rounded cards, left icon rail.
      ============================================================ */
   :root{
-    --bg-0:#04121F;
+    --bg-0:var(--on-accent);
     --bg-1:#0A2338;
     --bg-2:#0E2E4A;
     --shell:#0B2136;
@@ -744,7 +759,169 @@ svg.leaflet-image-layer.leaflet-interactive path {
 
     --tabh:0px;            /* phone tab bar height; set in the phone block */
     --hit:44px;            /* smallest thing a thumb should have to hit */
+
+    /* Roles rather than colours, so the light theme below can restate the
+       whole interface by rewriting this block and nothing else. */
+    --on-accent:#04121F;   /* ink on a saturated fill — dark in BOTH themes */
+    --on-status:#FFFFFF;
+    --btn-1:#3FC3FB; --btn-2:#1E90D6;
+    --btn-1h:#5BCFFD; --btn-2h:#2C9FE4;
+    --well:rgba(4,18,31,.34);      /* inset panels */
+    --well-2:rgba(4,18,31,.5);     /* form fields */
+    --well-3:rgba(4,18,31,.75);    /* focused field */
+    --float:rgba(11,33,54,.96);    /* popovers, toasts, tooltips, sheets */
+    --glass:rgba(9,27,45,.7);      /* chips sitting on the photo */
+    --scan-bg:#04121F;
+    --body-grad:linear-gradient(160deg,#0B2740 0%,#071B2E 46%,#04121F 100%);
+    --body-glow-1:rgba(56,189,248,.16);
+    --body-glow-2:rgba(27,175,122,.12);
+    --map-void:#0A2338;            /* what surrounds the photo on the map */
+    --scrim:rgba(2,10,18,.6);
   }
+
+  /* =====================================================================
+     SUN MODE
+     Dark glass is the wrong instrument for a phone held at arm's length on
+     open sand at midday: at a few hundred nits the eye is adapting to the
+     sky, and a dark screen loses to the reflection off its own glass. This
+     theme trades the atmosphere for contrast — near-black on near-white,
+     status colours darkened to hold their contrast against a light field,
+     and the glass blur dropped for solid fills, which stay legible when the
+     screen is washed out. It is not a tint of the dark theme; the darkest
+     ink here is darker than the lightest ink there.
+     ===================================================================== */
+  :root[data-theme="light"]{
+    --bg-0:#EDF3F7;
+    --bg-1:#FFFFFF;
+    --bg-2:#E2ECF3;
+    --shell:#FFFFFF;
+    --card:rgba(255,255,255,.92);
+    --card-2:rgba(255,255,255,1);
+    --card-3:rgba(9,44,70,.10);
+    --line:rgba(9,44,70,.16);
+    --line-2:rgba(9,44,70,.24);
+    --line-3:rgba(9,44,70,.38);
+
+    --ink:#071A28;
+    --ink-2:#1E3D52;
+    --ink-3:#3D5C75;
+    /* Measured at 4.45:1 on white, which is a fail, and it carried the chart
+       ticks, the zone sublines and every small caption. Darkened to clear AA. */
+    --ink-4:#4C6982;
+
+    --accent:#0369A1;
+    --accent-2:#075985;
+    --accent-deep:#023E5F;
+
+    /* Darkened so they keep 4.5:1 or better on white. The dark theme's
+       #22D08A reads at about 1.9:1 here — bright enough to look right and
+       impossible to actually read. */
+    --free:#047857;
+    --occ:#C4262C;
+    --res:#1D4ED8;
+    --maint:#B45309;
+    --free-ink:#046147;
+    --occ-ink:#A81D22;
+    --res-ink:#1A3FB0;
+    --maint-ink:#8F4308;
+
+    --on-accent:#FFFFFF;   /* the primary fill is dark blue here, so ink flips */
+    --on-status:#FFFFFF;
+    /* White ink on #0284C7 measures 4.1:1, so the top of the gradient failed
+       even though the bottom passed. Both ends now clear AA. */
+    --btn-1:#0369A1; --btn-2:#075985;
+    --btn-1h:#045C8C; --btn-2h:#023E5F;
+    --well:rgba(9,44,70,.055);
+    --well-2:rgba(9,44,70,.05);
+    --well-3:rgba(9,44,70,.09);
+    --float:rgba(255,255,255,.99);
+    --glass:rgba(255,255,255,.9);
+    --scan-bg:#0B1A24;     /* the scanner stays dark: it is a camera viewfinder */
+    --body-grad:linear-gradient(165deg,#F7FAFC 0%,#E9F1F6 55%,#DFEAF2 100%);
+    --body-glow-1:rgba(3,105,161,.07);
+    --body-glow-2:rgba(4,120,87,.06);
+    --map-void:#D8E5EE;
+    --scrim:rgba(12,32,48,.42);
+
+    --shadow:0 14px 34px -20px rgba(9,44,70,.42);
+    color-scheme:light;
+  }
+
+  /* Frosted glass over a light field turns to mud, and the blur costs real
+     frames on the cheap Androids this runs on. Solid surfaces instead. */
+  :root[data-theme="light"] .card,
+  :root[data-theme="light"] .rail,
+  :root[data-theme="light"] .tabbar,
+  :root[data-theme="light"] .hchip,
+  :root[data-theme="light"] .btn,
+  :root[data-theme="light"] .bed-card,
+  :root[data-theme="light"] .toast{backdrop-filter:none;-webkit-backdrop-filter:none;}
+  :root[data-theme="light"] .card{background:#FFFFFF;}
+  :root[data-theme="light"] .tabbar{background:rgba(255,255,255,.97);border-top-color:var(--line-2);}
+  :root[data-theme="light"] .rail{background:#FFFFFF;}
+  /* the photo keeps its own scrims, but they have to darken less on white */
+  :root[data-theme="light"] .hero-map:after{
+    background:linear-gradient(180deg, rgba(4,18,31,.42) 0%, rgba(4,18,31,0) 20%,
+                                       rgba(4,18,31,0) 46%, rgba(4,18,31,.80) 100%);}
+  :root[data-theme="light"] .hero-stats{
+    background:linear-gradient(180deg, rgba(4,18,31,.55), rgba(4,18,31,.80));}
+  :root[data-theme="light"] .hero-t,
+  :root[data-theme="light"] .hero-sub,
+  :root[data-theme="light"] .hero-badge,
+  :root[data-theme="light"] .hs-cell .l{color:#F2F8FC;}
+  :root[data-theme="light"] .hs-cell .v{color:#FFFFFF;}
+  :root[data-theme="light"] .hs-cell.free .v{color:#6EE7B7;}
+  :root[data-theme="light"] .hs-cell.use .v{color:#FCA5A5;}
+  :root[data-theme="light"] .bars .bar{
+    background:linear-gradient(180deg,#0EA5E9,#0369A1);box-shadow:none;}
+  :root[data-theme="light"] .bars .bcol:hover .bar,
+  :root[data-theme="light"] .bars .bcol.on .bar{
+    background:linear-gradient(180deg,#0369A1,#023E5F);filter:none;}
+  :root[data-theme="light"] ::selection{background:var(--accent);color:#fff;}
+  :root[data-theme="light"] .login-hint b{color:var(--ink);}
+  :root[data-theme="light"] ::-webkit-scrollbar-thumb{background:rgba(9,44,70,.22);}
+
+  /* Tinted fills that sit behind text. Their rgba values come from the dark
+     palette, where a 16% mint on navy is a legible chip; the same tint on
+     white is a smudge, and the pale ink written for a dark chip disappears
+     into it. Only the fills carrying words are restated — glows and drop
+     shadows are left alone. */
+  :root[data-theme="light"] .listcard .pill.calm{background:rgba(4,120,87,.13);color:var(--free-ink);}
+  :root[data-theme="light"] .listcard .pill.hot{background:rgba(196,38,44,.13);color:var(--occ-ink);}
+  :root[data-theme="light"] .badge-up{background:rgba(4,120,87,.13);color:var(--free-ink);}
+  :root[data-theme="light"] .badge-dn{background:rgba(196,38,44,.13);color:var(--occ-ink);}
+  :root[data-theme="light"] .ring-tag{background:rgba(4,120,87,.13);color:var(--free-ink);}
+  :root[data-theme="light"] .spot-chk.done{background:rgba(4,120,87,.13);
+    border-color:rgba(4,120,87,.45);color:var(--free-ink);}
+  :root[data-theme="light"] .login-error{border-color:rgba(196,38,44,.4);
+    background:rgba(196,38,44,.10);color:var(--occ-ink);}
+  :root[data-theme="light"] .chip.active{border-color:rgba(3,105,161,.5);background:rgba(3,105,161,.12);
+    color:var(--accent);}
+  :root[data-theme="light"] .sec-item.sel{border-color:rgba(3,105,161,.5);background:rgba(3,105,161,.09);}
+  :root[data-theme="light"] .listcard .row:hover{background:rgba(3,105,161,.09);
+    border-color:rgba(3,105,161,.35);}
+  :root[data-theme="light"] .isn{background:rgba(3,105,161,.13);color:var(--accent);}
+  :root[data-theme="light"] .isi{color:var(--accent);}
+  :root[data-theme="light"] .install-chip:hover{background:rgba(3,105,161,.18);}
+  :root[data-theme="light"] .switch.on{background:rgba(4,120,87,.35);}
+  :root[data-theme="light"] .live-dot{box-shadow:0 0 0 3px rgba(4,120,87,.22);}
+  :root[data-theme="light"] .saved-badge{color:var(--free-ink);}
+  :root[data-theme="light"] .map-card:hover,
+  :root[data-theme="light"] .hero-card:hover .hero-inner{border-color:rgba(3,105,161,.45);}
+  :root[data-theme="light"] .rail-btn.active,
+  :root[data-theme="light"] .tn-btn.active:not(.on){border-color:rgba(3,105,161,.35);}
+
+  /* The status buttons on the spot sheet: same idea, darker tints so the four
+     choices stay distinguishable against a white sheet. */
+  :root[data-theme="light"] .bc-acts .a-free{border-color:rgba(4,120,87,.42);background:rgba(4,120,87,.10);}
+  :root[data-theme="light"] .bc-acts .a-occ{border-color:rgba(196,38,44,.42);background:rgba(196,38,44,.10);}
+  :root[data-theme="light"] .bc-acts .a-res{border-color:rgba(29,78,216,.42);background:rgba(29,78,216,.10);}
+  :root[data-theme="light"] .bc-acts .a-maint{border-color:rgba(180,83,9,.42);background:rgba(180,83,9,.10);}
+  :root[data-theme="light"] .bc-acts button.on{color:#FFFFFF;}
+  :root[data-theme="light"] .bc-acts .a-free.on,
+  :root[data-theme="light"] .bc-acts .a-occ.on,
+  :root[data-theme="light"] .bc-acts .a-res.on,
+  :root[data-theme="light"] .bc-acts .a-maint.on{color:#FFFFFF;}
   *{box-sizing:border-box;}
   html,body{height:100%;}
   body{
@@ -752,13 +929,13 @@ svg.leaflet-image-layer.leaflet-interactive path {
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     font-feature-settings:"tnum" 1;-webkit-font-smoothing:antialiased;
     background:
-      radial-gradient(90% 70% at 82% 4%, rgba(56,189,248,.16) 0%, transparent 60%),
-      radial-gradient(70% 60% at 8% 96%, rgba(27,175,122,.12) 0%, transparent 62%),
-      linear-gradient(160deg,#0B2740 0%,#071B2E 46%,#04121F 100%);
+      radial-gradient(90% 70% at 82% 4%, var(--body-glow-1) 0%, transparent 60%),
+      radial-gradient(70% 60% at 8% 96%, var(--body-glow-2) 0%, transparent 62%),
+      var(--body-grad);
   }
   button{font-family:inherit;cursor:pointer;color:inherit;}
   input,select{font-family:inherit;}
-  ::selection{background:var(--accent);color:#04121F;}
+  ::selection{background:var(--accent);color:var(--on-accent);}
   ::-webkit-scrollbar{width:9px;height:9px;}
   ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.13);border-radius:20px;}
   ::-webkit-scrollbar-track{background:transparent;}
@@ -776,9 +953,9 @@ svg.leaflet-image-layer.leaflet-interactive path {
   }
   .btn:hover{background:var(--card-2);color:var(--ink);border-color:var(--line-3);}
   .btn:active{transform:scale(.985);}
-  .btn.primary{background:linear-gradient(180deg,#3FC3FB,#1E90D6);border-color:transparent;color:#04121F;font-weight:700;
+  .btn.primary{background:linear-gradient(180deg,var(--btn-1),var(--btn-2));border-color:transparent;color:var(--on-accent);font-weight:700;
     box-shadow:0 8px 20px -10px rgba(56,189,248,.9);}
-  .btn.primary:hover{background:linear-gradient(180deg,#5BCFFD,#2C9FE4);color:#04121F;}
+  .btn.primary:hover{background:linear-gradient(180deg,var(--btn-1h),var(--btn-2h));color:var(--on-accent);}
   .btn.on{background:linear-gradient(180deg,#FBBF5A,#E39A21);border-color:transparent;color:#2A1B03;font-weight:700;}
   .btn.wide{width:100%;justify-content:center;}
 
@@ -801,14 +978,14 @@ svg.leaflet-image-layer.leaflet-interactive path {
   .field label{display:block;font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-bottom:8px;}
   .field input{
     width:100%;height:48px;padding:0 14px;border-radius:var(--r-s);
-    border:1px solid var(--line-2);background:rgba(4,18,31,.5);color:var(--ink);
+    border:1px solid var(--line-2);background:var(--well-2);color:var(--ink);
     font-size:16px;outline:none;transition:border-color 160ms ease,background 160ms ease;
   }
-  .field input:focus{border-color:var(--accent);background:rgba(4,18,31,.75);}
+  .field input:focus{border-color:var(--accent);background:var(--well-3);}
   .field input::placeholder{color:var(--ink-4);}
   .login-btn{
     width:100%;height:44px;border:none;border-radius:var(--r-s);
-    background:linear-gradient(180deg,#3FC3FB,#1E90D6);color:#04121F;font-weight:700;font-size:13px;
+    background:linear-gradient(180deg,var(--btn-1),var(--btn-2));color:var(--on-accent);font-weight:700;font-size:13px;
     letter-spacing:.03em;margin-top:6px;box-shadow:0 12px 26px -12px rgba(56,189,248,.95);
     transition:filter 160ms ease,transform 120ms ease;
   }
@@ -832,10 +1009,10 @@ svg.leaflet-image-layer.leaflet-interactive path {
   }
   .rail-logo{
     width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;
-    background:linear-gradient(160deg,#3FC3FB,#1E7FC4);color:#04121F;
+    background:linear-gradient(160deg,var(--btn-1),var(--btn-2));color:var(--on-accent);
     box-shadow:0 10px 22px -10px rgba(56,189,248,.9);flex-shrink:0;
   }
-  .rail-logo .mark{width:26px;height:26px;color:#04121F;}
+  .rail-logo .mark{width:26px;height:26px;color:var(--on-accent);}
   .rail-sep{width:34px;height:1px;background:var(--line-2);margin:6px 0;flex-shrink:0;}
   .rail-nav{display:flex;flex-direction:column;gap:6px;align-items:center;}
   .rail-btn{
@@ -858,7 +1035,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
   .rail-btn:hover .tip{opacity:1;transform:translateY(-50%) translateX(0);}
   .rail-spacer{flex:1;}
   .rail-avatar{width:38px;height:38px;border-radius:12px;background:linear-gradient(160deg,#1BAF7A,#0E7C56);
-    display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#04121F;flex-shrink:0;}
+    display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--on-accent);flex-shrink:0;}
 
   /* stage */
   .stage{flex:1;min-width:0;display:flex;flex-direction:column;gap:14px;}
@@ -918,7 +1095,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
     background-size:cover;background-position:center;border:1px solid var(--line);
   }
   .mini-map:after{content:'';position:absolute;inset:0;
-    background:linear-gradient(180deg,rgba(4,18,31,0) 40%,rgba(4,18,31,.35) 100%);}
+    background:linear-gradient(180deg,rgba(4,18,31,0) 40%,var(--well) 100%);}
   .mm-dot{position:absolute;width:7px;height:7px;border-radius:2px;transform:translate(-50%,-50%);
     box-shadow:0 0 0 1px rgba(0,0,0,.45);}
   .mm-dot.umbrella{border-radius:50%;}
@@ -930,7 +1107,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
   .kpi-unit{font-size:15px;color:var(--ink-3);padding-bottom:6px;}
   .kpi-pills{display:flex;gap:8px;margin-top:16px;}
   .kpi-pill{
-    flex:1;border-radius:var(--r-xs);background:rgba(4,18,31,.35);border:1px solid var(--line);
+    flex:1;border-radius:var(--r-xs);background:var(--well);border:1px solid var(--line);
     padding:8px 10px;display:flex;align-items:center;gap:8px;font-size:11px;color:var(--ink-3);
   }
   .kpi-pill b{margin-left:auto;color:var(--ink);font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;}
@@ -956,7 +1133,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
   .wk-svg{width:100%;height:120px;display:block;overflow:visible;}
 
   /* highlight tiles */
-  .tile{background:rgba(4,18,31,.34);border:1px solid var(--line);border-radius:var(--r-s);padding:12px;
+  .tile{background:var(--well);border:1px solid var(--line);border-radius:var(--r-s);padding:12px;
     display:flex;flex-direction:column;min-height:126px;}
   .tile h4{margin:0 0 auto;font-size:11px;font-weight:600;color:var(--ink-3);}
   .tile .v{font-size:21px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;}
@@ -1049,7 +1226,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
     background:rgba(11,33,54,.82);border:1px solid var(--line-2);border-radius:var(--r-s);backdrop-filter:blur(14px);}
   .layer-switch button{border:none;background:transparent;color:var(--ink-3);padding:7px 13px;border-radius:7px;
     font-size:11.5px;font-weight:600;transition:background 160ms ease,color 160ms ease;}
-  .layer-switch button.active{background:linear-gradient(180deg,#3FC3FB,#1E90D6);color:#04121F;font-weight:700;}
+  .layer-switch button.active{background:linear-gradient(180deg,var(--btn-1),var(--btn-2));color:var(--on-accent);font-weight:700;}
   .layer-switch button:hover:not(.active){background:var(--card-2);color:var(--ink);}
 
   /* ---------- arrange rail, vertical, left edge of the map ---------- */
@@ -1080,16 +1257,16 @@ svg.leaflet-image-layer.leaflet-interactive path {
     transition:background 160ms ease,color 160ms ease;}
   .toolbelt .tool svg{width:18px;height:18px;}
   .toolbelt .tool:hover{background:var(--card-2);color:var(--ink);}
-  .toolbelt .tool.active{background:linear-gradient(180deg,#3FC3FB,#1E90D6);color:#04121F;}
+  .toolbelt .tool.active{background:linear-gradient(180deg,var(--btn-1),var(--btn-2));color:var(--on-accent);}
   .toolbelt .sep{width:20px;height:1px;background:var(--line-2);margin:2px 0;flex-shrink:0;}
   .toolbelt .mini{display:flex;justify-content:center;flex-shrink:0;}
-  .toolbelt .mini input{width:34px;height:26px;text-align:center;background:rgba(4,18,31,.5);
+  .toolbelt .mini input{width:34px;height:26px;text-align:center;background:var(--well-2);
     border:1px solid var(--line-2);color:var(--ink);border-radius:7px;padding:0;
     font-size:11px;font-variant-numeric:tabular-nums;outline:none;}
   .toolbelt .mini input:focus{border-color:var(--accent);}
   .toolbelt .tip{
     position:absolute;left:calc(100% + 10px);top:50%;transform:translateY(-50%) translateX(-4px);
-    background:rgba(9,27,45,.96);border:1px solid var(--line-2);color:var(--ink);border-radius:9px;
+    background:var(--float);border:1px solid var(--line-2);color:var(--ink);border-radius:9px;
     padding:5px 10px;font-size:11.5px;font-weight:600;white-space:nowrap;opacity:0;pointer-events:none;
     transition:opacity 150ms ease,transform 150ms ease;z-index:5;
   }
@@ -1158,7 +1335,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
   .legend .shape{width:11px;height:11px;border:1.5px solid var(--ink-3);border-radius:3px;display:inline-block;}
   .legend .shape.round{border-radius:50%;}
 
-  .leaflet-tooltip{background:rgba(11,33,54,.94)!important;border:1px solid var(--line-2)!important;
+  .leaflet-tooltip{background:var(--float)!important;border:1px solid var(--line-2)!important;
     border-radius:8px!important;color:var(--ink)!important;font-size:11px!important;font-weight:600;
     box-shadow:none!important;padding:5px 9px!important;backdrop-filter:blur(10px);}
   .leaflet-tooltip:before{display:none!important;}
@@ -1197,13 +1374,13 @@ svg.leaflet-image-layer.leaflet-interactive path {
 
   /* bed card */
   .bed-card{position:absolute;z-index:900;width:250px;display:none;
-    background:rgba(11,33,54,.94);border:1px solid var(--line-2);border-radius:var(--r);
+    background:var(--float);border:1px solid var(--line-2);border-radius:var(--r);
     box-shadow:0 30px 60px -24px rgba(0,0,0,.95);backdrop-filter:blur(20px);overflow:hidden;
     opacity:0;transform:scale(.94) translateY(4px);
     transition:opacity 150ms ease-out, transform 230ms cubic-bezier(.32,.72,0,1);}
   .bed-card.show{display:block;opacity:1;transform:none;}
   .bed-card:after{content:'';position:absolute;left:var(--stem,50%);margin-left:-5px;width:9px;height:9px;
-    background:rgba(11,33,54,.94);border-right:1px solid var(--line-2);border-bottom:1px solid var(--line-2);}
+    background:var(--float);border-right:1px solid var(--line-2);border-bottom:1px solid var(--line-2);}
   .bed-card.above:after{bottom:-5.5px;transform:rotate(45deg);}
   .bed-card.below:after{top:-5.5px;transform:rotate(225deg);}
   .bc-head{display:flex;align-items:center;gap:9px;padding:13px 14px;border-bottom:1px solid var(--line);}
@@ -1219,7 +1396,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
   .bc-acts{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:12px 14px;}
   .bc-acts button{padding:10px 4px;border:1px solid var(--line-2);border-radius:var(--r-xs);background:var(--card);
     color:var(--ink-2);font-size:11px;font-weight:600;transition:background 140ms ease,color 140ms ease,border-color 140ms ease;}
-  .bc-acts button.on{color:#04121F;font-weight:700;border-color:transparent;}
+  .bc-acts button.on{color:var(--on-accent);font-weight:700;border-color:transparent;}
   .bc-acts .a-free.on{background:var(--free);color:#fff;} .bc-acts .a-free:hover{background:var(--free);color:#fff;}
   .bc-acts .a-occ.on{background:var(--occ);color:#fff;}  .bc-acts .a-occ:hover{background:var(--occ);color:#fff;}
   .bc-acts .a-res.on{background:var(--res);color:#fff;}  .bc-acts .a-res:hover{background:var(--res);color:#fff;}
@@ -1233,7 +1410,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
   .bc-foot svg{width:13px;height:13px;}
   .bc-guest{padding:0 14px 12px;}
   .bc-guest input{width:100%;height:32px;padding:0 10px;border-radius:var(--r-xs);border:1px solid var(--line-2);
-    background:rgba(4,18,31,.45);color:var(--ink);font-size:12px;outline:none;}
+    background:var(--well-2);color:var(--ink);font-size:12px;outline:none;}
   .bc-guest input:focus{border-color:var(--accent);}
 
 
@@ -1249,13 +1426,13 @@ svg.leaflet-image-layer.leaflet-interactive path {
   .mtool svg{width:20px;height:20px;}
   .mtool:hover{background:rgba(14,46,74,.92);color:var(--ink);border-color:var(--line-3);}
   .mtool:active{transform:scale(.96);}
-  .mtool.primary{background:linear-gradient(180deg,#3FC3FB,#1E90D6);border-color:transparent;color:#04121F;
+  .mtool.primary{background:linear-gradient(180deg,var(--btn-1),var(--btn-2));border-color:transparent;color:var(--on-accent);
     box-shadow:0 12px 26px -12px rgba(56,189,248,.95);}
-  .mtool.primary:hover{background:linear-gradient(180deg,#5BCFFD,#2C9FE4);color:#04121F;}
+  .mtool.primary:hover{background:linear-gradient(180deg,var(--btn-1h),var(--btn-2h));color:var(--on-accent);}
   .mtool.on{background:linear-gradient(180deg,#FBBF5A,#E39A21);border-color:transparent;color:#2A1B03;}
   .mtool .tip{
     position:absolute;right:calc(100% + 10px);top:50%;transform:translateY(-50%) translateX(4px);
-    background:rgba(9,27,45,.96);border:1px solid var(--line-2);color:var(--ink);border-radius:9px;
+    background:var(--float);border:1px solid var(--line-2);color:var(--ink);border-radius:9px;
     padding:5px 10px;font-size:11.5px;font-weight:600;white-space:nowrap;opacity:0;pointer-events:none;
     transition:opacity 150ms ease,transform 150ms ease;
   }
@@ -1298,8 +1475,8 @@ svg.leaflet-image-layer.leaflet-interactive path {
   .zn-tabs{display:flex;gap:6px;flex-shrink:0;margin-bottom:14px;}
   .zn-tabs button{border:1px solid var(--line-2);background:var(--card);color:var(--ink-3);
     border-radius:var(--r-s);padding:9px 20px;font-size:12px;font-weight:600;}
-  .zn-tabs button.active{background:linear-gradient(180deg,#3FC3FB,#1E90D6);border-color:transparent;
-    color:#04121F;font-weight:700;}
+  .zn-tabs button.active{background:linear-gradient(180deg,var(--btn-1),var(--btn-2));border-color:transparent;
+    color:var(--on-accent);font-weight:700;}
   .zn-pane{display:none;} .zn-pane.active{display:block;}
   .zn-hint{font-size:12px;color:var(--ink-4);line-height:1.7;margin:0 0 16px;}
   .zn-grid{width:100%;}
@@ -1368,7 +1545,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
 
   /* ---------- day view ---------- */
   .day-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
-  .day-tile{background:rgba(4,18,31,.34);border:1px solid var(--line);border-radius:var(--r-s);padding:14px;}
+  .day-tile{background:var(--well);border:1px solid var(--line);border-radius:var(--r-s);padding:14px;}
   .day-tile .n{font-size:24px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;}
   .day-tile .l{font-size:11px;color:var(--ink-4);margin-top:6px;}
   .day-date{font-size:12px;color:var(--ink-3);margin-bottom:12px;}
@@ -1396,7 +1573,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
   .sync-dot.ok{background:var(--free);} .sync-dot.err{background:var(--occ);} .sync-dot.busy{background:#E3A21B;}
   .mini-label{font-size:11px;font-weight:600;color:var(--ink-3);display:block;margin:0 0 8px;}
   .inp,.field-mini input{width:100%;height:38px;padding:0 12px;border-radius:var(--r-s);border:1px solid var(--line-2);
-    background:rgba(4,18,31,.45);color:var(--ink);font-size:13px;outline:none;transition:border-color 160ms ease;}
+    background:var(--well-2);color:var(--ink);font-size:13px;outline:none;transition:border-color 160ms ease;}
   .inp:focus,.field-mini input:focus{border-color:var(--accent);}
   .inp::placeholder{color:var(--ink-4);}
   .switch-row{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--ink-2);padding:12px 0;}
@@ -1439,7 +1616,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
   .scanner-head b{font-size:12.5px;font-weight:600;}
   .scanner-head span{display:block;font-size:11px;color:var(--ink-4);margin-top:3px;}
   .scanner-box select{width:calc(100% - 28px);margin:14px;height:36px;padding:0 11px;border-radius:var(--r-s);
-    border:1px solid var(--line-2);background:rgba(4,18,31,.5);color:var(--ink);font-size:12.5px;outline:none;}
+    border:1px solid var(--line-2);background:var(--well-2);color:var(--ink);font-size:12.5px;outline:none;}
   .scan-actions{display:flex;gap:8px;padding:0 14px 14px;}
   .scan-actions button{flex:1;padding:11px 6px;border:1px solid var(--line-2);border-radius:var(--r-s);
     background:var(--card);font-size:11.5px;font-weight:600;transition:background 140ms ease,color 140ms ease;}
@@ -1453,7 +1630,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
   .scan-empty{font-size:11.5px;color:var(--ink-4);text-align:center;padding:20px 0;}
 
   /* ---------- scanner overlay ---------- */
-  .scan-overlay{position:fixed;inset:0;z-index:5000;background:#04121F;display:none;flex-direction:column;padding:14px;gap:14px;}
+  .scan-overlay{position:fixed;inset:0;z-index:5000;background:var(--scan-bg);display:none;flex-direction:column;padding:14px;gap:14px;}
   .scan-overlay.show{display:flex;}
   .scan-top{display:flex;align-items:center;gap:14px;flex-shrink:0;}
   .scan-top .ttl{font-size:16px;font-weight:700;}
@@ -1491,12 +1668,12 @@ svg.leaflet-image-layer.leaflet-interactive path {
   .scan-tools button{border:none;background:transparent;color:var(--ink-2);padding:8px 13px;border-radius:8px;
     font-size:11.5px;font-weight:600;}
   .scan-tools button:hover{background:var(--card-2);color:var(--ink);}
-  .scan-tools button.active{background:linear-gradient(180deg,#3FC3FB,#1E90D6);color:#04121F;font-weight:700;}
+  .scan-tools button.active{background:linear-gradient(180deg,var(--btn-1),var(--btn-2));color:var(--on-accent);font-weight:700;}
   .scan-side{width:308px;flex-shrink:0;display:flex;flex-direction:column;gap:12px;}
   .scan-modes{display:flex;gap:6px;padding:6px;background:var(--card);border:1px solid var(--line);border-radius:var(--r-s);}
   .scan-modes button{flex:1;border:none;background:transparent;color:var(--ink-3);padding:10px 4px;border-radius:8px;
     font-size:11.5px;font-weight:600;}
-  .scan-modes button.active{background:linear-gradient(180deg,#3FC3FB,#1E90D6);color:#04121F;font-weight:700;}
+  .scan-modes button.active{background:linear-gradient(180deg,var(--btn-1),var(--btn-2));color:var(--on-accent);font-weight:700;}
   .scan-manual{background:var(--card);border:1px solid var(--line);border-radius:var(--r-s);padding:14px;}
   .scan-manual .row{display:flex;gap:8px;}
   .scan-manual .row .inp{flex:1;}
@@ -1514,14 +1691,14 @@ svg.leaflet-image-layer.leaflet-interactive path {
   .modal-back{position:fixed;inset:0;background:rgba(4,12,20,.7);display:none;align-items:center;justify-content:center;
     z-index:3000;padding:20px;backdrop-filter:blur(6px);}
   .modal-back.show{display:flex;}
-  .modal{background:rgba(11,33,54,.96);border:1px solid var(--line-2);border-radius:18px;width:100%;max-width:380px;
+  .modal{background:var(--float);border:1px solid var(--line-2);border-radius:18px;width:100%;max-width:380px;
     box-shadow:0 40px 90px -30px rgba(0,0,0,.95);overflow:hidden;
     animation:mIn 200ms cubic-bezier(.32,.72,0,1);}
   @keyframes mIn{from{opacity:0;transform:scale(.97) translateY(6px);}to{opacity:1;transform:none;}}
   .modal h3{margin:0;padding:20px 22px 0;font-size:15px;font-weight:700;}
   .modal p{margin:0;padding:8px 22px 18px;font-size:12.5px;color:var(--ink-3);line-height:1.6;}
   .modal input{width:calc(100% - 44px);margin:0 22px;height:40px;padding:0 13px;border-radius:var(--r-s);
-    border:1px solid var(--line-2);background:rgba(4,18,31,.5);color:var(--ink);font-size:13.5px;outline:none;}
+    border:1px solid var(--line-2);background:var(--well-2);color:var(--ink);font-size:13.5px;outline:none;}
   .modal input:focus{border-color:var(--accent);}
   .modal-actions{display:flex;gap:10px;padding:20px 22px 22px;}
   .modal-actions .btn{flex:1;justify-content:center;height:40px;}
@@ -1532,7 +1709,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
   /* Was nowrap with a hard 2.9s fade baked into the animation, so anything
      longer than a few words ran off the screen and disappeared before it could
      be read. Now it wraps, and JS owns how long each message lives. */
-  .toast{background:rgba(11,33,54,.97);border:1px solid var(--line-2);color:var(--ink);padding:12px 18px;
+  .toast{background:var(--float);border:1px solid var(--line-2);color:var(--ink);padding:12px 18px;
     border-radius:16px;font-size:13px;font-weight:500;line-height:1.5;box-shadow:var(--shadow);
     backdrop-filter:blur(14px);opacity:0;text-align:center;max-width:100%;
     pointer-events:auto;cursor:pointer;
@@ -1542,10 +1719,20 @@ svg.leaflet-image-layer.leaflet-interactive path {
   @keyframes tOut{to{opacity:0;transform:translateY(-6px);}}
 
   /* ---------- install / update ---------- */
+  .theme-chip{cursor:pointer;gap:7px;font-weight:600;color:var(--ink-2);}
+  .theme-chip:hover{color:var(--ink);border-color:var(--line-3);background:var(--card-2);}
+  .theme-chip svg{width:16px;height:16px;flex-shrink:0;}
+  /* dark theme offers the sun; sun mode offers the way back */
+  .theme-chip .ic-moon{display:none;}
+  :root[data-theme="light"] .theme-chip .ic-sun{display:none;}
+  :root[data-theme="light"] .theme-chip .ic-moon{display:block;}
+
   .install-chip{
     border-color:rgba(125,211,252,.45);background:rgba(56,189,248,.14);color:var(--accent-2);
     font-weight:700;cursor:pointer;gap:7px;
   }
+  :root[data-theme="light"] .install-chip{
+    border-color:rgba(3,105,161,.4);background:rgba(3,105,161,.10);color:var(--accent);}
   .install-chip svg{width:15px;height:15px;}
   .install-chip:hover{background:rgba(56,189,248,.22);}
   .install-chip[hidden]{display:none;}
@@ -1555,7 +1742,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
     bottom:calc(var(--sab) + var(--tabh) + 18px);z-index:2600;
     width:min(520px, calc(100vw - 24px));
     display:flex;align-items:center;gap:10px;padding:11px 12px 11px 16px;
-    background:rgba(11,33,54,.98);border:1px solid var(--line-2);border-radius:16px;
+    background:var(--float);border:1px solid var(--line-2);border-radius:16px;
     box-shadow:0 24px 60px -24px rgba(0,0,0,.95);backdrop-filter:blur(16px);
     transition:transform 320ms cubic-bezier(.32,.72,0,1);
   }
@@ -1597,8 +1784,12 @@ svg.leaflet-image-layer.leaflet-interactive path {
      the bottom of it sits under the address bar. dvh is the real number;
      the vh line stays first as the fallback for older browsers. */
   #app{display:none;height:100vh;height:100dvh;padding:14px;gap:12px;flex-direction:row;
-    align-items:stretch;justify-content:center;}
-  .stage{max-width:1206px;}
+    align-items:stretch;justify-content:flex-start;}
+  /* Was centred at 1206px, which on any real desktop left a wide dead margin
+     down both sides and stranded the rail in the middle of nowhere. The shell
+     now fills the screen, with a ceiling so the cards do not turn into
+     letterboxes on an ultrawide. */
+  .stage{max-width:1680px;margin:0 auto;width:100%;}
   #app.ready{display:flex;}
   .rail{
     position:relative;z-index:1500;
@@ -1622,7 +1813,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
   .tn-btn svg{width:20px;height:20px;}
   .tn-btn:hover{background:var(--card-2);color:var(--ink);}
   .tn-btn:active{transform:scale(.95);}
-  .tn-btn.active,.tn-btn.on{background:linear-gradient(180deg,#3FC3FB,#1E90D6);color:#04121F;border-color:transparent;
+  .tn-btn.active,.tn-btn.on{background:linear-gradient(180deg,var(--btn-1),var(--btn-2));color:var(--on-accent);border-color:transparent;
     box-shadow:0 10px 22px -12px rgba(56,189,248,.95);}
   .tn-lang{position:relative;width:38px;height:34px;padding:0;border-radius:11px;border:1px solid var(--line);
     background:var(--card);color:var(--ink-3);font-size:11px;font-weight:700;letter-spacing:.04em;flex-shrink:0;
@@ -1631,19 +1822,19 @@ svg.leaflet-image-layer.leaflet-interactive path {
   .rail .tn-icon{position:relative;width:38px;height:34px;border-radius:11px;}
   .rail .tip{
     position:absolute;left:calc(100% + 12px);top:50%;right:auto;transform:translateY(-50%) translateX(-4px);
-    background:rgba(9,27,45,.96);border:1px solid var(--line-2);color:var(--ink);border-radius:9px;
+    background:var(--float);border:1px solid var(--line-2);color:var(--ink);border-radius:9px;
     padding:5px 10px;font-size:11.5px;font-weight:600;letter-spacing:0;white-space:nowrap;
     opacity:0;pointer-events:none;transition:opacity 150ms ease,transform 150ms ease;z-index:1501;}
   .rail button:hover .tip{opacity:1;transform:translateY(-50%) translateX(0);}
   .tn-lang:hover{background:var(--card-2);color:var(--ink);border-color:var(--line-3);}
-  .tn-lang.hr{background:linear-gradient(180deg,#3FC3FB,#1E90D6);border-color:transparent;color:#04121F;}
+  .tn-lang.hr{background:linear-gradient(180deg,var(--btn-1),var(--btn-2));border-color:transparent;color:var(--on-accent);}
   #sfxBtn.off{color:var(--ink-4);opacity:.65;}
   .tn-icon{width:38px;height:34px;border-radius:11px;border:1px solid var(--line);background:var(--card);
     color:var(--ink-3);display:flex;align-items:center;justify-content:center;transition:background 160ms ease,color 160ms ease;}
   .tn-icon svg{width:18px;height:18px;}
   .tn-icon:hover{background:var(--card-2);color:var(--ink);}
   .tn-avatar{width:38px;height:34px;border-radius:11px;background:linear-gradient(160deg,#1BAF7A,#0E7C56);
-    display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#04121F;}
+    display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--on-accent);}
   @media (max-width:1000px){ .stage-chips .hchip{display:none;} }
 
 
@@ -1652,50 +1843,112 @@ svg.leaflet-image-layer.leaflet-interactive path {
   .stage-head{padding:2px 6px;}
 
   /* ---------- overview grid, mirroring the reference ---------- */
-  .ov-grid{display:grid;grid-template-columns:1.02fr 1fr;gap:14px;align-items:start;}
-  .ov-col{display:flex;flex-direction:column;gap:14px;min-width:0;}
-  .ov-col .promo{flex:1;min-height:190px;}
-  .ov-bottom{display:grid;grid-template-columns:1.5fr 1fr;gap:14px;}
-  @media (max-width:1200px){ .ov-grid{grid-template-columns:1fr;} }
+  /* ---------- overview: twelve column dashboard ----------
+     Row 1  the photo, full bleed across the whole width — it is a picture of
+            a shoreline, so it wants to be wide, not squeezed into a column
+     Row 2  occupancy · check-ins · zones (zones runs down two rows)
+     Row 3  today's takings · the scan prompt
+     Rows size to their content and share out what is left, so the grid fills
+     the screen without any one card being stretched into an empty box. */
+  .ov-grid{
+    display:grid;gap:14px;min-height:100%;
+    grid-template-columns:repeat(12,minmax(0,1fr));
+    grid-template-rows:minmax(300px,1.35fr) minmax(240px,1fr) minmax(150px,auto);
+  }
+  .hero-card{grid-column:1 / -1;grid-row:1;}
+  .g-occ  {grid-column:span 4;grid-row:2;}
+  .g-line {grid-column:span 4;grid-row:2;}
+  .g-zones{grid-column:span 4;grid-row:2 / span 2;}
+  .g-today{grid-column:span 4;grid-row:3;}
+  .g-promo{grid-column:span 4;grid-row:3;}
 
-  /* hero map card with callouts */
-  .hero-card{padding:0;border:none;background:none;box-shadow:none;text-align:left;width:100%;cursor:pointer;display:block;}
+  /* every grid child manages its own inner height */
+  .ov-grid > .card{display:flex;flex-direction:column;min-height:0;overflow:hidden;}
+  .ov-grid > .card > .card-b{flex:1;min-height:0;display:flex;flex-direction:column;}
+  .g-line .card-b{justify-content:center;}
+  .g-today .card-b{justify-content:center;}
+  .g-zones #ovZones{flex:1;min-height:0;overflow-y:auto;}
+  .takings-h{display:flex;align-items:center;gap:10px;margin-top:16px;}
+  .takings-h h3{margin:0;font-size:14px;font-weight:700;color:var(--ink);}
+
+  /* Below 1200 the three-across row cannot hold its columns, so it becomes
+     two, and the photo keeps the full width it is best at. */
+  @media (max-width:1240px){
+    .ov-grid{grid-template-columns:repeat(6,minmax(0,1fr));
+      grid-template-rows:minmax(280px,1fr) auto auto auto;}
+    .hero-card{grid-column:1 / -1;grid-row:1;}
+    .g-occ  {grid-column:span 3;grid-row:2;}
+    .g-line {grid-column:span 3;grid-row:2;}
+    .g-zones{grid-column:span 3;grid-row:3;}
+    .g-today{grid-column:span 3;grid-row:3;}
+    .g-promo{grid-column:1 / -1;grid-row:4;}
+    .g-zones #ovZones{overflow:visible;}
+  }
+
+  /* ---------- hero: the photo IS the card ----------
+     Previously the photo was inset 14% on each side inside a padded card with
+     a centred title above it, which on a wide screen produced a large empty
+     box with a small picture floating in the middle and four labels drifting
+     around the edges. Now the photo fills the card edge to edge and the
+     readings sit on it, which is both denser and easier to read. */
+  .hero-card{padding:0;border:none;background:none;box-shadow:none;text-align:left;
+    width:100%;cursor:pointer;display:block;flex:1.7 1 0;min-height:330px;}
   .hero-inner{
-    position:relative;border-radius:var(--r);overflow:hidden;border:1px solid var(--line);
-    background:var(--card);backdrop-filter:blur(18px);box-shadow:var(--shadow);padding:22px 22px 18px;
+    position:relative;height:100%;border-radius:var(--r);overflow:hidden;border:1px solid var(--line);
+    background:var(--bg-1);box-shadow:var(--shadow);padding:0;
     transition:transform 200ms cubic-bezier(.32,.72,0,1),border-color 200ms ease,box-shadow 200ms ease;
   }
   .hero-card:hover .hero-inner{border-color:rgba(125,211,252,.45);transform:translateY(-2px);
     box-shadow:0 26px 54px -26px rgba(0,0,0,.95);}
   .hero-card.zooming .hero-inner{transform:scale(1.02);opacity:.6;}
-  .hero-t{font-size:30px;font-weight:700;letter-spacing:-.02em;line-height:1.12;text-align:center;margin:0 0 4px;}
-  .hero-sub{text-align:center;font-size:12px;color:var(--ink-3);margin:0 0 14px;}
-  .hero-stage{position:relative;width:100%;aspect-ratio:16/10;}
+
+  .hero-stage{position:relative;width:100%;height:100%;min-height:340px;}
   .hero-map{
-    position:absolute;left:14%;right:14%;top:6%;bottom:6%;border-radius:12px;overflow:hidden;
-    background-size:cover;background-position:center 62%;border:1px solid var(--line-2);
-    box-shadow:0 18px 40px -18px rgba(0,0,0,.9);
+    position:absolute;inset:0;overflow:hidden;
+    background-size:cover;background-position:center 58%;
   }
-  .hero-map:after{content:'';position:absolute;inset:0;
-    background:radial-gradient(70% 60% at 50% 60%, rgba(56,189,248,.12), transparent 70%);}
-  .hm-dot{position:absolute;width:6px;height:6px;border-radius:2px;transform:translate(-50%,-50%);
-    box-shadow:0 0 0 1px rgba(0,0,0,.5);}
+  /* Scrims, not a wash: the top one carries the badge, the bottom one carries
+     the title and the readings. The middle of the photo is left alone. */
+  .hero-map:after{content:'';position:absolute;inset:0;pointer-events:none;
+    background:linear-gradient(180deg, rgba(4,18,31,.55) 0%, rgba(4,18,31,0) 22%,
+                                       rgba(4,18,31,0) 44%, rgba(4,18,31,.86) 100%);}
+  .hero-card:hover .hero-map{transform:scale(1.012);}
+  .hero-map{transition:transform 400ms cubic-bezier(.32,.72,0,1);}
+
+  .hm-dot{position:absolute;width:7px;height:7px;border-radius:2px;transform:translate(-50%,-50%);
+    box-shadow:0 0 0 1px rgba(0,0,0,.55), 0 0 6px rgba(0,0,0,.4);z-index:1;}
   .hm-dot.umbrella{border-radius:50%;}
-  .callout{position:absolute;display:flex;align-items:center;gap:7px;pointer-events:none;max-width:34%;}
-  .callout .lbl{font-size:10.5px;color:var(--ink-3);line-height:1.3;white-space:normal;
-    background:rgba(9,27,45,.86);border:1px solid var(--line);border-radius:10px;padding:5px 9px;
-    backdrop-filter:blur(8px);box-shadow:0 8px 20px -12px rgba(0,0,0,.9);}
-  .callout .lbl b{display:block;font-size:14px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;margin-top:1px;}
-  .callout .node{width:9px;height:9px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.18);flex-shrink:0;}
-  .callout svg{position:absolute;overflow:visible;pointer-events:none;}
-  .co-tl{left:1%;top:9%;} .co-tr{right:1%;top:5%;flex-direction:row-reverse;text-align:right;}
-  .co-bl{left:1%;bottom:7%;} .co-br{right:1%;bottom:13%;flex-direction:row-reverse;text-align:right;}
-  .hero-badge{position:absolute;right:14px;top:14px;display:flex;align-items:center;gap:7px;
-    background:rgba(9,27,45,.7);border:1px solid var(--line);border-radius:20px;padding:5px 11px;
-    font-size:10.5px;color:var(--ink-2);}
+
+  .hero-badge{position:absolute;right:14px;top:14px;z-index:3;display:flex;align-items:center;gap:7px;
+    background:rgba(4,18,31,.62);border:1px solid rgba(255,255,255,.16);border-radius:20px;padding:6px 12px;
+    font-size:11.5px;color:var(--ink);backdrop-filter:blur(10px);}
+
+  .hero-cap{position:absolute;left:22px;right:22px;bottom:86px;z-index:3;}
+  .hero-t{font-size:clamp(22px,2.1vw,34px);font-weight:700;letter-spacing:-.022em;line-height:1.1;
+    margin:0;text-align:left;text-shadow:0 2px 18px rgba(0,0,0,.6);}
+  .hero-sub{text-align:left;font-size:13px;color:var(--ink-2);margin:6px 0 0;
+    text-shadow:0 1px 10px rgba(0,0,0,.7);}
+
+  /* The four readings, as one strip along the foot of the photo. As scattered
+     callouts they read as debris; in a row they read as an instrument. */
+  .hero-stats{position:absolute;left:0;right:0;bottom:0;z-index:3;
+    display:grid;grid-template-columns:repeat(4,1fr);
+    border-top:1px solid rgba(255,255,255,.14);
+    background:linear-gradient(180deg, rgba(4,18,31,.42), rgba(4,18,31,.78));
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);}
+  .hs-cell{padding:11px 14px 13px;min-width:0;position:relative;}
+  .hs-cell + .hs-cell:before{content:'';position:absolute;left:0;top:22%;bottom:22%;
+    width:1px;background:rgba(255,255,255,.13);}
+  .hs-cell .l{display:block;font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;
+    color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .hs-cell .v{display:block;font-size:23px;font-weight:700;letter-spacing:-.02em;margin-top:3px;
+    font-variant-numeric:tabular-nums;line-height:1;}
+  .hs-cell .v small{font-size:14px;font-weight:600;color:var(--ink-3);letter-spacing:0;}
+  .hs-cell.free .v{color:var(--free-ink);}
+  .hs-cell.use  .v{color:var(--occ-ink);}
 
   /* bar chart card */
-  .bars{display:flex;align-items:flex-end;gap:6px;height:150px;padding:6px 2px 0;}
+  .bars{display:flex;align-items:flex-end;gap:6px;height:clamp(150px,20vh,230px);padding:6px 2px 0;}
   .bars .bcol{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:7px;height:100%;
     position:relative;border:none;background:none;padding:0;cursor:pointer;min-width:0;}
   .bars .bwrap{flex:1;width:100%;min-height:0;position:relative;display:flex;
@@ -1724,7 +1977,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
 
   /* list card (zones) */
   .listcard .row{display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:12px;
-    background:rgba(4,18,31,.34);border:1px solid var(--line);margin-bottom:8px;
+    background:var(--well);border:1px solid var(--line);margin-bottom:8px;
     transition:background 160ms ease,border-color 160ms ease,transform 140ms ease;cursor:pointer;width:100%;text-align:left;}
   .listcard .row:hover{background:rgba(56,189,248,.12);border-color:rgba(125,211,252,.4);transform:translateX(2px);}
   .listcard .ic{width:28px;height:28px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
@@ -1751,14 +2004,14 @@ svg.leaflet-image-layer.leaflet-interactive path {
 
   /* ---------- startup ---------- */
   #splash{position:fixed;inset:0;z-index:6000;display:none;align-items:center;justify-content:center;
-    background:radial-gradient(90% 70% at 50% 10%, rgba(56,189,248,.16) 0%, transparent 60%),
-               linear-gradient(160deg,#0B2740 0%,#071B2E 46%,#04121F 100%);
+    background:radial-gradient(90% 70% at 50% 10%, var(--body-glow-1) 0%, transparent 60%),
+               var(--body-grad);
     transition:opacity 520ms ease;}
   #splash.show{display:flex;}
   #splash.lift{opacity:0;pointer-events:none;}
   .sp-stack{display:flex;flex-direction:column;align-items:center;gap:24px;}
   .sp-mark{width:104px;height:104px;border-radius:30px;display:flex;align-items:center;justify-content:center;
-    background:linear-gradient(160deg,#3FC3FB,#1E7FC4);color:#04121F;will-change:transform;
+    background:linear-gradient(160deg,var(--btn-1),var(--btn-2));color:var(--on-accent);will-change:transform;
     box-shadow:0 26px 60px -20px rgba(56,189,248,.75);}
   .sp-mark svg{width:62px;height:62px;display:block;}
   .sp-word{text-align:center;font-size:16px;font-weight:700;letter-spacing:.05em;color:var(--ink);
@@ -1784,7 +2037,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
   /* ===================================================================
      Everything below is the phone layer. It lives at the end of the
      stylesheet on purpose: these rules have to beat the desktop rules they
-     override, and several of them (.callout, .stage, the grids) are defined
+     override, and several of them (.stage, the hero, the grids) are defined
      further down the file than the old phone block was.
      =================================================================== */
 
@@ -1861,7 +2114,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
     .tab-scan{
       position:relative;appearance:none;border:0;background:none;padding:0;
       height:var(--tabh);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
-      gap:3px;color:#04121F;-webkit-tap-highlight-color:transparent;
+      gap:3px;color:var(--on-accent);-webkit-tap-highlight-color:transparent;
     }
     .tab-scan .ts-ring{
       position:absolute;left:50%;top:-16px;transform:translateX(-50%);
@@ -1871,7 +2124,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
                  0 0 0 4px rgba(5,20,34,.92);
       transition:transform 160ms cubic-bezier(.32,.72,0,1);
     }
-    .tab-scan svg{position:relative;width:27px;height:27px;margin-bottom:11px;color:#04121F;}
+    .tab-scan svg{position:relative;width:27px;height:27px;margin-bottom:11px;color:var(--on-accent);}
     .ts-l{position:relative;font-size:10.5px;font-weight:700;color:var(--accent-2);line-height:1;}
     .tab-scan:active .ts-ring{transform:translateX(-50%) scale(.93);}
 
@@ -1880,7 +2133,9 @@ svg.leaflet-image-layer.leaflet-interactive path {
     .stage-title h1{font-size:19px;}
     .stage-title p{font-size:12px;color:var(--ink-3);}
     .stage-chips{display:none;}
-    .install-chip{height:36px;padding:0 12px;font-size:12px;}
+    .install-chip,.theme-chip{height:40px;padding:0 13px;font-size:12.5px;}
+    .theme-l{display:none;}          /* the icon alone is unambiguous */
+    .theme-chip{padding:0 11px;}
 
     /* ---- type floor ----
        Every one of these carried a real number or a real label at 9.5–11.5px.
@@ -1935,7 +2190,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
       width:auto !important;max-width:none;
       border-radius:20px 20px 0 0;
       border-left:0;border-right:0;border-bottom:0;
-      background:rgba(9,30,50,.98);
+      background:var(--float);
       box-shadow:0 -26px 60px -20px rgba(0,0,0,.95);
       transform:translateY(100%) !important;
       transition:transform 300ms cubic-bezier(.32,.72,0,1);
@@ -1968,10 +2223,10 @@ svg.leaflet-image-layer.leaflet-interactive path {
     .bc-acts .a-occ{color:var(--occ-ink);border-color:rgba(255,90,87,.4);background:rgba(255,90,87,.10);}
     .bc-acts .a-res{color:var(--res-ink);border-color:rgba(84,166,255,.4);background:rgba(84,166,255,.10);}
     .bc-acts .a-maint{color:var(--maint-ink);border-color:rgba(255,176,32,.4);background:rgba(255,176,32,.10);}
-    .bc-acts button.on{color:#04121F;box-shadow:0 8px 20px -10px currentColor;}
-    .bc-acts .a-free.on{background:var(--free);color:#04121F;}
+    .bc-acts button.on{color:var(--on-accent);box-shadow:0 8px 20px -10px currentColor;}
+    .bc-acts .a-free.on{background:var(--free);color:var(--on-accent);}
     .bc-acts .a-occ.on{background:var(--occ);color:#2A0708;}
-    .bc-acts .a-res.on{background:var(--res);color:#04121F;}
+    .bc-acts .a-res.on{background:var(--res);color:var(--on-accent);}
     .bc-acts .a-maint.on{background:var(--maint);color:#2A1B03;}
 
     .bc-foot button{padding:0;min-height:var(--hit);font-size:13px;}
@@ -1989,10 +2244,25 @@ svg.leaflet-image-layer.leaflet-interactive path {
     .tab-l,.ts-l{font-size:10.5px;}
 
     .card-b{padding:14px;}
-    .hero-t{font-size:clamp(22px,7vw,30px);}
+    .hero-t{font-size:clamp(21px,6vw,28px);}
     .hero-sub{margin-bottom:12px;}
     .hero-badge{padding:6px 10px;font-size:11.5px;}
-    .callout{display:none;}   /* callouts overlap the beach photo on a phone */
+    /* One column, in the order a shift needs it: the beach, then what it is
+       taking, then the zones. A 164px card cannot hold a bar chart. */
+    .ov-grid{grid-template-columns:1fr;grid-template-rows:none;min-height:0;}
+    .ov-grid > *{grid-column:1 / -1 !important;grid-row:auto !important;}
+    .g-zones #ovZones{overflow:visible;}
+
+    /* The reading strip stays on a phone — it is the fastest answer to "can I
+       sell anything" — but two rows of two rather than four thin columns. */
+    .hero-stats{grid-template-columns:1fr 1fr;}
+    .hs-cell{padding:9px 12px 11px;}
+    .hs-cell .v{font-size:20px;}
+    .hs-cell:nth-child(3):before,.hs-cell:nth-child(3) ~ .hs-cell:before{top:0;}
+    .hs-cell:nth-child(n+3){border-top:1px solid rgba(255,255,255,.12);}
+    .hs-cell:nth-child(3):before{display:none;}
+    .hero-cap{left:16px;right:16px;bottom:150px;}
+    .hero-stage{min-height:300px;}
 
     /* ---- controls reach a real thumb target ---- */
     .btn{height:42px;padding:0 16px;font-size:13px;}
@@ -2121,6 +2391,14 @@ svg.leaflet-image-layer.leaflet-interactive path {
       <div class="stage-title"><h1 id="viewTitle">Overview</h1>
         <p id="viewSub"><span id="beachName">Beach Materada, Poreč</span></p></div>
       <div class="sp"></div>
+      <!-- Sun mode. Top level rather than buried in settings: on this beach it
+           is the difference between a readable screen and a mirror. -->
+      <button class="hchip theme-chip" id="themeBtn" aria-pressed="false">
+        <svg class="ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.2M12 19.2v2.2M21.4 12h-2.2M4.8 12H2.6M18.6 5.4l-1.6 1.6M7 17l-1.6 1.6M18.6 18.6L17 17M7 7 5.4 5.4"/></svg>
+        <svg class="ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.2A8.2 8.2 0 0 1 9.8 4a8.4 8.4 0 1 0 10.2 10.2z"/></svg>
+        <span class="theme-l">Sun</span>
+      </button>
+
       <!-- Hidden until the browser says the app is actually installable, so it
            never offers something it cannot deliver. -->
       <button class="hchip install-chip" id="installBtn" hidden>
@@ -2137,54 +2415,55 @@ svg.leaflet-image-layer.leaflet-interactive path {
     <!-- ============ OVERVIEW ============ -->
     <section class="view active" id="view-overview">
       <div class="scroller">
+        <!-- A twelve column grid rather than two stacked columns. The old
+             split gave a wide shoreline photo a narrow column and gave the
+             right hand column more height than it had content for, which is
+             why a list of three zones ended up in an 800px box. -->
         <div class="ov-grid">
 
-          <!-- LEFT COLUMN -->
-          <div class="ov-col">
-            <button class="hero-card" id="ovMapCard">
-              <div class="hero-inner">
+          <button class="hero-card" id="ovMapCard">
+            <div class="hero-inner">
+              <div class="hero-stage" id="heroStage">
+                <div class="hero-map" id="ovMiniMap"></div>
                 <div class="hero-badge"><span class="live-dot"></span><span id="heroDate">—</span></div>
-                <h2 class="hero-t" data-i18n="heroT">Beach<br>Overview</h2>
-                <p class="hero-sub">Tap to open the live map</p>
-                <div class="hero-stage" id="heroStage">
-                  <div class="hero-map" id="ovMiniMap"></div>
+                <div class="hero-cap">
+                  <h2 class="hero-t" data-i18n="heroT">Beach Materada</h2>
+                  <p class="hero-sub">Tap to open the live map</p>
                 </div>
+                <div class="hero-stats" id="heroStats"></div>
               </div>
-            </button>
-
-            <div class="ov-bottom">
-              <div class="card"><div class="card-h"><h3>Check-ins through the week</h3></div>
-                <div class="card-b" id="ovLine"></div></div>
-              <div class="card"><div class="card-h"><h3>Today</h3></div>
-                <div class="card-b" id="ovSide"></div></div>
             </div>
+          </button>
 
-            <div class="promo">
-              <h3 data-i18n="promo">Scan a bed&rsquo;s QR to <em>check guests in and out</em> in one tap.</h3>
-              <button class="pbtn" id="promoScan">Open the scanner</button>
+          <div class="card g-occ"><div class="card-b">
+            <div class="card-h" style="padding:0 0 12px"><h3>Peak occupancy</h3><div class="sp"></div>
+              <span class="hchip">Last 9 days</span></div>
+            <div id="ovBars"></div>
+            <div class="takings-h">
+              <h3>Takings</h3>
+              <span class="badge-up" id="ovTrend">—</span>
             </div>
+            <div class="bstats" id="ovBstats"></div>
+          </div></div>
+
+          <div class="card g-line"><div class="card-h"><h3>Check-ins through the week</h3></div>
+            <div class="card-b" id="ovLine"></div></div>
+
+          <div class="card listcard g-zones"><div class="card-b">
+            <div class="card-h" style="padding:0 0 12px"><h3>Zones</h3><div class="sp"></div>
+              <span class="hchip" id="ovAllZones" style="cursor:pointer">Open map</span></div>
+            <div class="daystrip" id="ovDayStrip"></div>
+            <div id="ovZones"></div>
+          </div></div>
+
+          <div class="card g-today"><div class="card-h"><h3>Today</h3></div>
+            <div class="card-b" id="ovSide"></div></div>
+
+          <div class="promo g-promo">
+            <h3 data-i18n="promo">Scan a bed&rsquo;s QR to <em>check guests in and out</em> in one tap.</h3>
+            <button class="pbtn" id="promoScan">Open the scanner</button>
           </div>
 
-          <!-- RIGHT COLUMN -->
-          <div class="ov-col">
-            <div class="card"><div class="card-b">
-              <div class="card-h" style="padding:0 0 12px"><h3>Peak occupancy</h3><div class="sp"></div>
-                <span class="hchip">Last 9 days</span></div>
-              <div id="ovBars"></div>
-              <div style="display:flex;align-items:center;gap:10px;margin-top:16px;">
-                <h3 style="margin:0;font-size:14px;font-weight:700;">Takings</h3>
-                <span class="badge-up" id="ovTrend">—</span>
-              </div>
-              <div class="bstats" id="ovBstats"></div>
-            </div></div>
-
-            <div class="card listcard"><div class="card-b">
-              <div class="card-h" style="padding:0 0 12px"><h3>Zones</h3><div class="sp"></div>
-                <span class="hchip" id="ovAllZones" style="cursor:pointer">Open map</span></div>
-              <div class="daystrip" id="ovDayStrip"></div>
-              <div id="ovZones"></div>
-            </div></div>
-          </div>
         </div>
 
       </div>
@@ -17067,7 +17346,7 @@ var qrcode = function() {
     setText('heroDate', d.toLocaleDateString(LOC(), {day:'numeric', month:'short'}) + ' · ' +
                         d.toLocaleTimeString(LOC(), {hour:'2-digit', minute:'2-digit'}));
 
-    /* ---- hero map + callouts ---- */
+    /* ---- hero photo + readings ---- */
     var mm = document.getElementById('ovMiniMap');
     mm.style.backgroundImage = 'url("' + baseMap.url + '")';
     var dots = '';
@@ -17078,20 +17357,20 @@ var qrcode = function() {
     });
     mm.innerHTML = dots;
 
-    var stage = document.getElementById('heroStage');
-    stage.querySelectorAll('.callout').forEach(function(e){ e.remove(); });
-    var CO = [
-      ['co-tl','Free now', c.free],
-      ['co-tr','In use', inUse],
-      ['co-bl','Sun beds', bedC.free + '/' + bedsArr.length],
-      ['co-br','Parasols', umbC.free + '/' + umbArr.length]
+    /* One strip of readings along the foot of the photo, in the order a shift
+       actually asks them: what can I sell, what is out, and the split. */
+    var HS = [
+      ['free','Free now',  String(c.free), ''],
+      ['use', 'In use',    String(inUse), ''],
+      ['',    'Sun beds',  String(bedC.free), '/' + bedsArr.length],
+      ['',    'Parasols',  String(umbC.free), '/' + umbArr.length]
     ];
-    CO.forEach(function(o){
-      var el = document.createElement('div');
-      el.className = 'callout ' + o[0];
-      el.innerHTML = '<span class="node"></span><span class="lbl">'+o[1]+'<b>'+o[2]+'</b></span>';
-      stage.appendChild(el);
-    });
+    document.getElementById('heroStats').innerHTML = HS.map(function(o){
+      return '<div class="hs-cell ' + o[0] + '">'
+           +   '<span class="l">' + o[1] + '</span>'
+           +   '<span class="v">' + o[2] + (o[3] ? '<small>' + o[3] + '</small>' : '') + '</span>'
+           + '</div>';
+    }).join('');
 
     /* ---- bar chart: peak occupancy, last 9 closed days (interactive) ---- */
     var rows = dayHistory.slice(-9);
@@ -17465,6 +17744,38 @@ var qrcode = function() {
     var b = document.getElementById(id);
     if(b) b.addEventListener('click', openScanner);
   });
+
+  /* ---- sun mode ----
+     The head script has already picked the starting theme; this only handles
+     switching, remembering the choice, and keeping the OS bar colour in step.
+     A choice made here is sticky: someone who turned sun mode on is standing
+     in the sun, and should not have it undone by a system setting at dusk. */
+  function currentTheme(){ return document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark'; }
+  function applyTheme(t, remember){
+    document.documentElement.setAttribute('data-theme', t);
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if(meta) meta.setAttribute('content', t === 'light' ? '#EDF3F7' : '#04121F');
+    var btn = document.getElementById('themeBtn');
+    if(btn){
+      btn.setAttribute('aria-pressed', t === 'light' ? 'true' : 'false');
+      var lbl = btn.querySelector('.theme-l');
+      if(lbl) lbl.textContent = t === 'light' ? 'Dark' : 'Sun';
+      btn.title = t === 'light' ? 'Switch back to the dark theme' : 'Sun mode — high contrast for bright daylight';
+    }
+    if(remember){ try{ localStorage.setItem('bbm.theme', t); }catch(e){} }
+    /* the pin colours are painted from the tokens, so they need redrawing */
+    if(typeof map !== 'undefined' && map){ renderBeds(); renderSections(); }
+    if(currentView === 'overview') renderOverview();
+    if(currentView === 'day') renderCharts();
+  }
+  (function(){
+    var b = document.getElementById('themeBtn');
+    if(b) b.addEventListener('click', function(){
+      applyTheme(currentTheme() === 'light' ? 'dark' : 'light', true);
+      sfx('tap');
+    });
+    applyTheme(currentTheme(), false);   /* sync the label and the bar colour */
+  })();
   document.getElementById('promoScan').addEventListener('click', openScanner);
   document.getElementById('ovAllZones').addEventListener('click', function(){ setView('map'); });
   (function(){

@@ -1,0 +1,45 @@
+{
+  "name": "Beach Body Map — Shore Operations",
+  "short_name": "Beach Map",
+  "description": "Live sun-bed and parasol map, QR check-in and daily takings for Beach Materada, Poreč.",
+  "id": "/beach-body-map/",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "display_override": ["standalone", "fullscreen"],
+  "orientation": "any",
+  "background_color": "#04121F",
+  "theme_color": "#04121F",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["business", "productivity", "utilities"],
+  "icons": [
+    { "src": "icons/icon-192.png",     "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png",     "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Scan a spot",
+      "short_name": "Scan",
+      "description": "Open the QR scanner to check a guest in or out",
+      "url": "./?go=scan",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Beach map",
+      "short_name": "Map",
+      "description": "Open the live shoreline map",
+      "url": "./?go=map",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Day & takings",
+      "short_name": "Takings",
+      "description": "Today's check-ins, occupancy and revenue",
+      "url": "./?go=day",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

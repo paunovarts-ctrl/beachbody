@@ -1821,22 +1821,6 @@ svg.leaflet-image-layer.leaflet-interactive path {
   .install-chip:hover{background:rgba(56,189,248,.22);}
   .install-chip[hidden]{display:none;}
 
-  .updatebar{
-    position:fixed;left:50%;transform:translateX(-50%) translateY(140%);
-    /* clears the scan button, which stands 16px proud of the tab bar */
-    bottom:calc(var(--sab) + var(--tabh) + 34px);z-index:2600;
-    width:min(520px, calc(100vw - 24px));
-    display:flex;align-items:center;gap:10px;padding:11px 12px 11px 16px;
-    background:var(--float);border:1px solid var(--line-2);border-radius:16px;
-    box-shadow:0 24px 60px -24px rgba(0,0,0,.95);backdrop-filter:blur(16px);
-    transition:transform 320ms cubic-bezier(.32,.72,0,1);
-  }
-  .updatebar.show{transform:translateX(-50%) translateY(0);}
-  .updatebar p{margin:0;flex:1;font-size:13px;color:var(--ink-2);}
-  .updatebar .btn{height:36px;flex-shrink:0;}
-  .ub-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;
-    box-shadow:0 0 0 3px rgba(56,189,248,.22);}
-
   .ios-sheet{
     position:fixed;inset:0;z-index:2700;display:flex;align-items:flex-end;justify-content:center;
     background:rgba(2,10,18,.72);backdrop-filter:blur(6px);
@@ -2888,14 +2872,6 @@ svg.leaflet-image-layer.leaflet-interactive path {
 
 <div id="toastWrap"></div>
 
-<!-- A new build is cached and waiting. Reloading mid-shift would throw away
-     whatever is on screen, so it asks rather than swapping underneath them. -->
-<div class="updatebar" id="updateBar" role="status">
-  <span class="ub-dot"></span>
-  <p>A newer version is ready.</p>
-  <button class="btn" id="updateLater">Not now</button>
-  <button class="btn primary" id="updateGo">Reload</button>
-</div>
 
 <!-- iOS gives web pages no way to trigger installation, so the only honest
      thing to do is show the two taps it actually takes. -->
@@ -17070,8 +17046,6 @@ var qrcode = function() {
   var HR = {
     /* --- phone tab bar, install and update (added with the mobile shell) --- */
     'Map':'Karta','Scan a spot':'Skeniraj mjesto','Install':'Instaliraj',
-    'A newer version is ready.':'Spremna je novija verzija.',
-    'Not now':'Ne sada','Reload':'Ponovno učitaj',
     'Put this on the home screen':'Dodaj na početni zaslon',
     'It opens full screen, keeps working with no signal, and the scanner gets the camera the same as any app.':
       'Otvara se preko cijelog zaslona, radi i bez signala, a skener dobiva kameru kao i svaka druga aplikacija.',
@@ -18290,15 +18264,6 @@ var qrcode = function() {
 (function(){
   "use strict";
 
-  /* Once a build is live the note about declining its predecessor is stale. */
-  try{
-    if(navigator.serviceWorker && navigator.serviceWorker.controller){
-      var dis = localStorage.getItem('bbm.updateDismissed');
-      if(dis && dis === navigator.serviceWorker.controller.scriptURL)
-        localStorage.removeItem('bbm.updateDismissed');
-    }
-  }catch(e){}
-
   var standalone = window.matchMedia('(display-mode: standalone)').matches ||
                    window.matchMedia('(display-mode: fullscreen)').matches ||
                    window.navigator.standalone === true;
@@ -18309,77 +18274,16 @@ var qrcode = function() {
   if(isIOS) document.documentElement.classList.add('ios');
 
   /* ---------- service worker ----------
-     The update prompt is deliberately dumb and hard to get stuck on. The first
-     version wired both buttons inside the function that showed the bar, so any
-     throw in there left the bar on screen with no working controls, and the
-     Reload button depended entirely on a controllerchange event that Safari
-     does not reliably deliver — leaving a bar pinned over the app that could
-     not be dismissed or acted on. Now: the buttons are wired once at startup
-     and cannot come unwired, Reload always ends in a reload whether or not the
-     worker answers, and Not now is remembered so it does not reappear on the
-     next launch of the same build. */
-  var pendingWorker = null;
-  var reloading = false;
-
-  function hardReload(){
-    if(reloading) return;
-    reloading = true;
-    location.reload();
-  }
-
-  function wireUpdateBar(){
-    var bar   = document.getElementById('updateBar');
-    var go    = document.getElementById('updateGo');
-    var later = document.getElementById('updateLater');
-    if(!bar || !go || !later) return;
-
-    go.addEventListener('click', function(){
-      go.disabled = true;
-      go.textContent = 'Updating…';
-      if(pendingWorker){
-        try{ pendingWorker.postMessage('skip-waiting'); }catch(e){}
-      }
-      /* Whatever the worker does or fails to do, this button reloads. */
-      setTimeout(hardReload, 1500);
-    });
-
-    later.addEventListener('click', function(){
-      bar.classList.remove('show');
-      try{
-        localStorage.setItem('bbm.updateDismissed',
-          (pendingWorker && pendingWorker.scriptURL) || 'pending');
-      }catch(e){}
-    });
-  }
-  if(document.readyState === 'loading')
-    document.addEventListener('DOMContentLoaded', wireUpdateBar);
-  else wireUpdateBar();
-
-  function offerUpdate(worker){
-    var bar = document.getElementById('updateBar');
-    if(!bar) return;
-    pendingWorker = worker;
-    var seen = null;
-    try{ seen = localStorage.getItem('bbm.updateDismissed'); }catch(e){}
-    if(seen && worker && seen === worker.scriptURL) return;   /* already declined */
-    bar.classList.add('show');
-  }
-
+     No update prompt. A dialog telling a beach attendant that a new build
+     exists, and asking them to decide about it, is a question only a developer
+     cares about — and it sat on top of the navigation while they were trying to
+     work. The worker promotes itself as soon as it installs, so a new version
+     is simply what loads the next time the app is opened. Nothing to read,
+     nothing to dismiss, and no reload in the middle of somebody's shift. */
   if('serviceWorker' in navigator && location.protocol !== 'file:'){
     window.addEventListener('load', function(){
-      navigator.serviceWorker.register('sw.js').then(function(reg){
-        if(reg.waiting) offerUpdate(reg.waiting);
-        reg.addEventListener('updatefound', function(){
-          var nw = reg.installing;
-          if(!nw) return;
-          nw.addEventListener('statechange', function(){
-            /* controller present means this is an update, not a first install */
-            if(nw.state === 'installed' && navigator.serviceWorker.controller) offerUpdate(nw);
-          });
-        });
-      }).catch(function(){ /* app runs fine without it, just not offline */ });
-
-      navigator.serviceWorker.addEventListener('controllerchange', hardReload);
+      navigator.serviceWorker.register('sw.js')
+        .catch(function(){ /* app runs fine without it, just not offline */ });
     });
   }
 

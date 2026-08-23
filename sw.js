@@ -3,7 +3,7 @@
    the whole thing runs with no signal at all. That matters: the staff using
    this are standing on sand, and Materada does not have reliable coverage.   */
 
-const VERSION = 'bbm-v1';
+const VERSION = 'bbm-v2';
 const SHELL   = VERSION + '-shell';
 
 /* Everything needed to cold-start the app with the network switched off. */
@@ -32,6 +32,12 @@ self.addEventListener('install', event => {
         if (res.ok) await cache.put(url, res);
       } catch (e) { /* offline at install time — runtime caching will catch it */ }
     }));
+    /* Take over as soon as the new shell is cached, rather than sitting in
+       "waiting" until every tab is closed. There is no update prompt to release
+       it any more, and the page being replaced has already loaded its own code,
+       so nothing changes underneath anyone mid-shift — the new version is
+       simply what starts the next time the app is opened. */
+    await self.skipWaiting();
   })());
 });
 
@@ -44,11 +50,6 @@ self.addEventListener('activate', event => {
     }
     await self.clients.claim();
   })());
-});
-
-/* The page asks for this after the user accepts an update prompt. */
-self.addEventListener('message', event => {
-  if (event.data === 'skip-waiting') self.skipWaiting();
 });
 
 const isNav = req =>

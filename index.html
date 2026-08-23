@@ -870,6 +870,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
   :root[data-theme="light"] .hero-badge,
   :root[data-theme="light"] .hs-cell .l{color:#F2F8FC;}
   :root[data-theme="light"] .hs-cell .v{color:#FFFFFF;}
+  :root[data-theme="light"] .hs-cell .v small{color:#A9C4D6;}
   :root[data-theme="light"] .hs-cell.free .v{color:#6EE7B7;}
   :root[data-theme="light"] .hs-cell.use .v{color:#FCA5A5;}
   :root[data-theme="light"] .bars .bar{
@@ -916,14 +917,82 @@ svg.leaflet-image-layer.leaflet-interactive path {
      install sheet. Both inherited near-black body ink, which on their own dark
      gradients was invisible. They carry light ink instead of being lightened,
      because their contrast is the point. */
-  :root[data-theme="light"] .promo h3{color:#F4FAFE;}
-  :root[data-theme="light"] .promo h3 em{color:#A9E4FD;}
   :root[data-theme="light"] .promo{border-color:rgba(9,44,70,.28);}
 
   :root[data-theme="light"] .ios-card{background:#FFFFFF;border-color:var(--line-2);}
   :root[data-theme="light"] .ios-card h3{color:var(--ink);}
   :root[data-theme="light"] .ios-card > p{color:var(--ink-2);}
   :root[data-theme="light"] .ios-steps li{color:var(--ink);}
+
+  /* =====================================================================
+     FLOATING CHROME IN SUN MODE
+     Everything that hovers over the map or the charts — tool buttons, the
+     zoom control, the legend, zone labels, the hint, the zoom readout, chart
+     tooltips — was built as a dark pill for a dark app. In sun mode they kept
+     those dark backgrounds while inheriting near-black body ink, so the icons
+     and the numbers on them disappeared. They become light surfaces here,
+     which is also what reads best sitting on a bright aerial photo.
+     ===================================================================== */
+  :root[data-theme="light"] .mtool{
+    background:rgba(255,255,255,.94);border-color:rgba(9,44,70,.22);color:var(--ink-2);
+    backdrop-filter:none;box-shadow:0 6px 18px -10px rgba(9,44,70,.55);}
+  :root[data-theme="light"] .mtool:hover{background:#fff;color:var(--ink);}
+
+  :root[data-theme="light"] .leaflet-control-zoom{border-color:rgba(9,44,70,.22)!important;}
+  :root[data-theme="light"] .leaflet-control-zoom a{
+    background:rgba(255,255,255,.95)!important;color:var(--ink)!important;}
+  :root[data-theme="light"] .leaflet-control-zoom a:hover{background:#fff!important;}
+
+  :root[data-theme="light"] .toolbelt,
+  :root[data-theme="light"] .scan-tools{
+    background:rgba(255,255,255,.95);border-color:rgba(9,44,70,.22);backdrop-filter:none;}
+  :root[data-theme="light"] .toolbelt .tool{color:var(--ink-2);}
+  :root[data-theme="light"] .toolbelt .tool:hover{background:rgba(9,44,70,.07);color:var(--ink);}
+
+  :root[data-theme="light"] .tool-hint,
+  :root[data-theme="light"] .zoom-pill{
+    background:rgba(255,255,255,.94);border-color:rgba(9,44,70,.2);color:var(--ink-2);
+    backdrop-filter:none;}
+
+  :root[data-theme="light"] .map-legend{
+    background:rgba(255,255,255,.94);border-color:rgba(9,44,70,.2);backdrop-filter:none;}
+  :root[data-theme="light"] .map-legend span{color:var(--ink-2);}
+
+  :root[data-theme="light"] .sec-rect-label{
+    background:rgba(255,255,255,.95)!important;border-color:rgba(9,44,70,.24)!important;
+    color:var(--ink)!important;}
+
+  :root[data-theme="light"] .viz-tip{
+    background:#FFFFFF;border-color:rgba(9,44,70,.2);color:var(--ink);
+    box-shadow:0 10px 26px -12px rgba(9,44,70,.5);}
+
+  /* The scanner is a camera viewfinder and the scan prompt is a feature block:
+     both stay dark in sun mode on purpose. Rather than chase their descendants
+     one class at a time — which is how half of these got missed in the first
+     place — the dark palette is re-declared on the subtree root, so everything
+     inside them inherits ink that suits the surface they are actually on. */
+  :root[data-theme="light"] .scan-overlay,
+  :root[data-theme="light"] .promo{
+    --ink:#F2F8FC;
+    --ink-2:#C6DBEA;
+    --ink-3:#9DB8CE;
+    --ink-4:#8AA6BD;
+    --card:rgba(255,255,255,.08);
+    --card-2:rgba(255,255,255,.14);
+    --card-3:rgba(255,255,255,.2);
+    --line:rgba(255,255,255,.14);
+    --line-2:rgba(255,255,255,.22);
+    --line-3:rgba(255,255,255,.34);
+    --well:rgba(4,18,31,.4);
+    --well-2:rgba(4,18,31,.5);
+    --well-3:rgba(4,18,31,.7);
+    --float:rgba(11,33,54,.96);
+    --accent:#38BDF8;
+    --accent-2:#A9E4FD;
+    color:var(--ink);
+  }
+  :root[data-theme="light"] .scan-tools{
+    background:rgba(11,33,54,.9);border-color:rgba(255,255,255,.22);}
 
   /* The status buttons on the spot sheet: same idea, darker tints so the four
      choices stay distinguishable against a white sheet. */
@@ -1170,7 +1239,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
     padding:24px;display:flex;flex-direction:column;justify-content:space-between;gap:20px;
   }
   .promo h3{margin:0;font-size:19px;font-weight:700;line-height:1.35;letter-spacing:-.01em;max-width:24ch;}
-  .promo h3 em{font-style:normal;color:var(--accent-2);}
+  .promo h3 em{font-style:normal;color:#A9E4FD;}
   .promo .pbtn{
     height:44px;border:none;border-radius:26px;background:rgba(255,255,255,.94);color:#08243A;
     font-size:13px;font-weight:700;width:100%;transition:background 160ms ease,transform 120ms ease;
@@ -1200,6 +1269,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
   .legend i{width:9px;height:9px;border-radius:3px;display:inline-block;}
   .toolbar-spacer{flex:1;}
 
+  .zone-select{display:none;}          /* phones only — see the phone layer */
   .chipbar{display:flex;align-items:stretch;gap:8px;overflow-x:auto;flex-shrink:0;padding-bottom:2px;}
   .chipbar::-webkit-scrollbar{height:0;}
   .chipbar .lbl{display:none;}
@@ -1753,7 +1823,8 @@ svg.leaflet-image-layer.leaflet-interactive path {
 
   .updatebar{
     position:fixed;left:50%;transform:translateX(-50%) translateY(140%);
-    bottom:calc(var(--sab) + var(--tabh) + 18px);z-index:2600;
+    /* clears the scan button, which stands 16px proud of the tab bar */
+    bottom:calc(var(--sab) + var(--tabh) + 34px);z-index:2600;
     width:min(520px, calc(100vw - 24px));
     display:flex;align-items:center;gap:10px;padding:11px 12px 11px 16px;
     background:var(--float);border:1px solid var(--line-2);border-radius:16px;
@@ -2111,7 +2182,13 @@ svg.leaflet-image-layer.leaflet-interactive path {
     .tab svg{width:23px;height:23px;flex-shrink:0;}
     .tab-l{font-size:10.5px;font-weight:600;letter-spacing:.01em;line-height:1;
       max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-    .tab.active{color:var(--accent-2);}
+    /* The tab buttons also carry .tn-btn so setView can toggle them, which
+       drags the rail's filled-pill treatment into the tab bar — a gradient
+       lozenge behind an icon that is meant to sit on a bar. Reset it: in a
+       tab bar the active state is the colour and the rule above it. */
+    .tab.tn-btn.active,.tab.tn-btn.on{
+      background:none;border-color:transparent;box-shadow:none;color:var(--accent);}
+    .tab.active{color:var(--accent);}
     .tab.active svg{filter:drop-shadow(0 0 10px rgba(56,189,248,.45));}
     .tab:active{color:var(--ink);}
     /* the lit rule sits on the border, so the active tab reads even in glare */
@@ -2278,11 +2355,30 @@ svg.leaflet-image-layer.leaflet-interactive path {
 
     /* ---- controls reach a real thumb target ---- */
     .btn{height:42px;padding:0 16px;font-size:13px;}
-    .chipbar .chip{padding:10px 14px;font-size:12.5px;min-height:40px;}
+    .chipbar{display:none;}
+    .zone-select{
+      display:flex;align-items:center;gap:10px;position:relative;flex-shrink:0;
+      height:52px;padding:0 14px;border-radius:var(--r-s);
+      border:1px solid var(--line-2);background:var(--card);
+    }
+    .zs-cap{font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;
+      color:var(--ink-3);flex-shrink:0;}
+    .zone-select select{
+      appearance:none;-webkit-appearance:none;
+      flex:1;min-width:0;height:100%;border:0;background:none;outline:none;
+      font-size:16px;font-weight:600;color:var(--ink);
+      padding:0 22px 0 0;text-overflow:ellipsis;
+    }
+    .zs-caret{position:absolute;right:12px;width:18px;height:18px;color:var(--ink-3);pointer-events:none;}
+    .zone-select:focus-within{border-color:var(--accent);}
     .mtool{width:var(--hit);height:var(--hit);}
     .mtool svg{width:20px;height:20px;}
     .map-tools{gap:8px;top:10px;right:10px;}
-    .map-legend{font-size:12px;gap:7px 12px;padding:9px 11px;right:10px;bottom:10px;}
+    /* The base rule pins left, top AND right; adding bottom here stretched it
+       to 329x565 and covered the whole beach in a dark panel. Corner pill. */
+    .map-legend{font-size:12px;gap:6px 10px;padding:8px 10px;
+      left:10px;top:10px;right:auto;bottom:auto;
+      width:max-content;max-width:calc(100% - 74px);}
 
     .toolbelt{gap:5px;padding:6px;left:10px;top:auto;bottom:calc(var(--sab) + 14px);}
     .toolbelt .tool{width:40px;height:40px;}
@@ -2484,6 +2580,16 @@ svg.leaflet-image-layer.leaflet-interactive path {
     <!-- ============ MAP ============ -->
     <section class="view" id="view-map">
       <div class="chipbar" id="chipbar"><span class="lbl">Zones</span></div>
+      <!-- Same choice as the chips, as a control that fits a phone. The chip
+           row needs horizontal scrolling below about 700px, which hides zones
+           off the right edge with nothing to say they are there. A native
+           select gets the platform's own picker, which is easier to hit with a
+           thumb and impossible to render half off-screen. -->
+      <label class="zone-select" for="zoneSelect">
+        <span class="zs-cap">Zone</span>
+        <select id="zoneSelect"></select>
+        <svg class="zs-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9.5l6 6 6-6"/></svg>
+      </label>
       <div class="mapWrap">
         <div id="mapCanvas"></div>
         <div class="map-tools">
@@ -16110,6 +16216,20 @@ var qrcode = function() {
       chip.addEventListener('click', function(){ zoomToSection(sc.id); });
       bar.appendChild(chip);
     });
+
+    /* The phone's version of the same control. Built from the same numbers so
+       the two can never disagree; only one of them is ever visible. */
+    var sel = document.getElementById('zoneSelect');
+    if(sel){
+      var opts = '<option value="">All beach — ' + allC.free + ' free of ' + beds.length + '</option>';
+      sections.forEach(function(sc){
+        var list = bedsIn(sc), c = countBy(list);
+        opts += '<option value="' + sc.id + '">' + esc(sc.name)
+              + ' — ' + c.free + ' free of ' + list.length + '</option>';
+      });
+      sel.innerHTML = opts;
+      sel.value = activeSection === null ? '' : String(activeSection);
+    }
   }
   var CHECK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6"/></svg>';
   function setupProgress(){
@@ -17757,6 +17877,15 @@ var qrcode = function() {
     if(b) b.addEventListener('click', openScanner);
   });
 
+  (function(){
+    var sel = document.getElementById('zoneSelect');
+    if(!sel) return;
+    sel.addEventListener('change', function(){
+      if(sel.value === '') zoomToAll();
+      else zoomToSection(sel.value);
+    });
+  })();
+
   /* ---- sun mode ----
      The head script has already picked the starting theme; this only handles
      switching, remembering the choice, and keeping the OS bar colour in step.
@@ -18161,6 +18290,15 @@ var qrcode = function() {
 (function(){
   "use strict";
 
+  /* Once a build is live the note about declining its predecessor is stale. */
+  try{
+    if(navigator.serviceWorker && navigator.serviceWorker.controller){
+      var dis = localStorage.getItem('bbm.updateDismissed');
+      if(dis && dis === navigator.serviceWorker.controller.scriptURL)
+        localStorage.removeItem('bbm.updateDismissed');
+    }
+  }catch(e){}
+
   var standalone = window.matchMedia('(display-mode: standalone)').matches ||
                    window.matchMedia('(display-mode: fullscreen)').matches ||
                    window.navigator.standalone === true;
@@ -18170,23 +18308,66 @@ var qrcode = function() {
               (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   if(isIOS) document.documentElement.classList.add('ios');
 
-  /* ---------- service worker ---------- */
+  /* ---------- service worker ----------
+     The update prompt is deliberately dumb and hard to get stuck on. The first
+     version wired both buttons inside the function that showed the bar, so any
+     throw in there left the bar on screen with no working controls, and the
+     Reload button depended entirely on a controllerchange event that Safari
+     does not reliably deliver — leaving a bar pinned over the app that could
+     not be dismissed or acted on. Now: the buttons are wired once at startup
+     and cannot come unwired, Reload always ends in a reload whether or not the
+     worker answers, and Not now is remembered so it does not reappear on the
+     next launch of the same build. */
+  var pendingWorker = null;
+  var reloading = false;
+
+  function hardReload(){
+    if(reloading) return;
+    reloading = true;
+    location.reload();
+  }
+
+  function wireUpdateBar(){
+    var bar   = document.getElementById('updateBar');
+    var go    = document.getElementById('updateGo');
+    var later = document.getElementById('updateLater');
+    if(!bar || !go || !later) return;
+
+    go.addEventListener('click', function(){
+      go.disabled = true;
+      go.textContent = 'Updating…';
+      if(pendingWorker){
+        try{ pendingWorker.postMessage('skip-waiting'); }catch(e){}
+      }
+      /* Whatever the worker does or fails to do, this button reloads. */
+      setTimeout(hardReload, 1500);
+    });
+
+    later.addEventListener('click', function(){
+      bar.classList.remove('show');
+      try{
+        localStorage.setItem('bbm.updateDismissed',
+          (pendingWorker && pendingWorker.scriptURL) || 'pending');
+      }catch(e){}
+    });
+  }
+  if(document.readyState === 'loading')
+    document.addEventListener('DOMContentLoaded', wireUpdateBar);
+  else wireUpdateBar();
+
+  function offerUpdate(worker){
+    var bar = document.getElementById('updateBar');
+    if(!bar) return;
+    pendingWorker = worker;
+    var seen = null;
+    try{ seen = localStorage.getItem('bbm.updateDismissed'); }catch(e){}
+    if(seen && worker && seen === worker.scriptURL) return;   /* already declined */
+    bar.classList.add('show');
+  }
+
   if('serviceWorker' in navigator && location.protocol !== 'file:'){
     window.addEventListener('load', function(){
       navigator.serviceWorker.register('sw.js').then(function(reg){
-
-        function offerUpdate(worker){
-          var bar = document.getElementById('updateBar');
-          if(!bar) return;
-          bar.classList.add('show');
-          document.getElementById('updateGo').onclick = function(){
-            worker.postMessage('skip-waiting');
-          };
-          document.getElementById('updateLater').onclick = function(){
-            bar.classList.remove('show');
-          };
-        }
-
         if(reg.waiting) offerUpdate(reg.waiting);
         reg.addEventListener('updatefound', function(){
           var nw = reg.installing;
@@ -18198,12 +18379,7 @@ var qrcode = function() {
         });
       }).catch(function(){ /* app runs fine without it, just not offline */ });
 
-      var reloading = false;
-      navigator.serviceWorker.addEventListener('controllerchange', function(){
-        if(reloading) return;
-        reloading = true;
-        location.reload();
-      });
+      navigator.serviceWorker.addEventListener('controllerchange', hardReload);
     });
   }
 

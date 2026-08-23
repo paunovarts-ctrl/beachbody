@@ -2212,7 +2212,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
     }
     .tab-scan > svg{
       position:absolute;left:50%;top:-16px;transform:translateX(-50%);
-      width:58px;height:58px;padding:16px;box-sizing:border-box;
+      width:58px;height:58px;padding:12px;box-sizing:border-box;
       margin:0;color:var(--on-accent);z-index:1;
     }
     .ts-l{position:relative;margin-top:26px;font-size:10.5px;font-weight:700;
@@ -2429,7 +2429,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
     .tab-l,.ts-l{display:none;}
     .tab svg{width:22px;height:22px;}
     .tab-scan .ts-ring{top:-10px;width:46px;height:46px;border-radius:16px;}
-    .tab-scan svg{margin-bottom:4px;width:23px;height:23px;}
+    .tab-scan > svg{top:-10px;width:46px;height:46px;padding:10px;}
     .stage-head{display:none;}
   }
 
@@ -2507,7 +2507,17 @@ svg.leaflet-image-layer.leaflet-interactive path {
 
     <button class="tab-scan" id="tabScan" aria-label="Scan a spot">
       <span class="ts-ring"></span>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V6a2 2 0 0 1 2-2h2M20 8V6a2 2 0 0 0-2-2h-2M4 16v2a2 2 0 0 0 2 2h2M20 16v2a2 2 0 0 1-2 2h-2"/><path d="M3.5 12h17"/></svg>
+      <!-- Viewfinder corners with arms long enough to read at this size, and a
+           scan line inset so it sits inside the frame rather than cutting
+           through it. The old one had 4-unit arms and a full-bleed line, which
+           at 26px was a thin scribble in the middle of a 58px button. -->
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9V5.6A2.6 2.6 0 0 1 5.6 3H9"/>
+        <path d="M15 3h3.4A2.6 2.6 0 0 1 21 5.6V9"/>
+        <path d="M21 15v3.4a2.6 2.6 0 0 1-2.6 2.6H15"/>
+        <path d="M9 21H5.6A2.6 2.6 0 0 1 3 18.4V15"/>
+        <path d="M6.6 12h10.8"/>
+      </svg>
       <span class="ts-l">Scan</span>
     </button>
 

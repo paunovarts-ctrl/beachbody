@@ -3,7 +3,7 @@
    the whole thing runs with no signal at all. That matters: the staff using
    this are standing on sand, and Materada does not have reliable coverage.   */
 
-const VERSION = 'bbm-v2';
+const VERSION = 'bbm-v3';
 const SHELL   = VERSION + '-shell';
 
 /* Everything needed to cold-start the app with the network switched off. */

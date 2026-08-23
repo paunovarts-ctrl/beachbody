@@ -2153,7 +2153,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
   .tabbar{display:none;}
 
   @media (max-width:760px){
-    :root{ --tabh:56px; --tabraise:0px; }
+    :root{ --tabh:52px; --tabraise:0px; }
 
     body{overflow-x:hidden;}
 
@@ -2164,7 +2164,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
          spills off BOTH ends and the header scrolls out of reach. */
       justify-content:flex-start;
       padding:calc(var(--sat) + 8px) calc(var(--sar) + 10px)
-              calc(var(--tabbar-h) + var(--tabraise) + 8px) calc(var(--sal) + 10px);
+              var(--tabbar-h) calc(var(--sal) + 10px);
       gap:10px;
     }
     .stage{max-width:none;gap:10px;}
@@ -2376,6 +2376,13 @@ svg.leaflet-image-layer.leaflet-interactive path {
     .hero-t{font-size:clamp(21px,6vw,28px);}
     .hero-sub{margin-bottom:12px;}
     .hero-badge{padding:6px 10px;font-size:11.5px;}
+    /* The scroller now ends exactly at the bar, so content passes behind it
+       rather than stopping short with a strip of page showing between. The
+       padding lives inside the scroller, which means it is scrollable space:
+       the last card can be brought fully clear of the bar instead of being
+       clipped part way through. */
+    .scroller{padding-bottom:16px;}
+
     /* One column, in the order a shift needs it: the beach, then what it is
        taking, then the zones. A 164px card cannot hold a bar chart. */
     .ov-grid{grid-template-columns:1fr;grid-template-rows:none;min-height:0;}

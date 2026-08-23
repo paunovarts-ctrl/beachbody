@@ -762,7 +762,8 @@ svg.leaflet-image-layer.leaflet-interactive path {
        needs about 21px of clearance — reserving the full inset under an already
        tall bar is what left a broad empty band at the bottom of the screen.
        Ten of those pixels are reclaimed, which still clears the indicator. */
-    --tabpad:max(calc(var(--sab) - 18px), 0px);
+    --tab-notch:#0A1E30;   /* the bar's own colour, punched around the button */
+    --tabpad:max(calc(var(--sab) - 20px), 0px);
     --tabbar-h:calc(var(--tabh) + var(--tabpad));
     --hit:44px;            /* smallest thing a thumb should have to hit */
 
@@ -847,6 +848,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
     --body-glow-1:rgba(3,105,161,.07);
     --body-glow-2:rgba(4,120,87,.06);
     --map-void:#D8E5EE;
+    --tab-notch:#F4F8FB;
     --scrim:rgba(12,32,48,.42);
 
     --shadow:0 14px 34px -20px rgba(9,44,70,.42);
@@ -863,7 +865,10 @@ svg.leaflet-image-layer.leaflet-interactive path {
   :root[data-theme="light"] .bed-card,
   :root[data-theme="light"] .toast{backdrop-filter:none;-webkit-backdrop-filter:none;}
   :root[data-theme="light"] .card{background:#FFFFFF;}
-  :root[data-theme="light"] .tabbar{background:rgba(255,255,255,.97);border-top-color:var(--line-2);}
+  /* A white bar on a near-white page has no edge, so the padding under the
+     labels reads as empty page rather than as part of the bar. Tinted and
+     given a firmer top edge so it reads as sitting on the bottom. */
+  :root[data-theme="light"] .tabbar{background:#F4F8FB;border-top-color:rgba(9,44,70,.22);}
   :root[data-theme="light"] .rail{background:#FFFFFF;}
   /* the photo keeps its own scrims, but they have to darken less on white */
   :root[data-theme="light"] .hero-map:after{
@@ -1720,7 +1725,11 @@ svg.leaflet-image-layer.leaflet-interactive path {
   .scan-empty{font-size:11.5px;color:var(--ink-4);text-align:center;padding:20px 0;}
 
   /* ---------- scanner overlay ---------- */
-  .scan-overlay{position:fixed;inset:0;z-index:5000;background:var(--scan-bg);display:none;flex-direction:column;padding:14px;gap:14px;}
+  /* Full screen means under the notch and the home indicator too. Without
+     these the title, the counter and Close were all rendered behind the
+     Dynamic Island and looked like they were printed on top of each other. */
+  .scan-overlay{position:fixed;inset:0;z-index:5000;background:var(--scan-bg);display:none;flex-direction:column;
+    padding:calc(var(--sat) + 14px) calc(var(--sar) + 14px) calc(var(--sab) + 14px) calc(var(--sal) + 14px);gap:14px;}
   .scan-overlay.show{display:flex;}
   .scan-top{display:flex;align-items:center;gap:14px;flex-shrink:0;}
   .scan-top .ttl{font-size:16px;font-weight:700;}
@@ -1778,7 +1787,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
   @media (max-width:900px){ .scan-body{flex-direction:column;} .scan-side{width:auto;max-height:44vh;} }
 
   /* ---------- modal / toast ---------- */
-  .modal-back{position:fixed;inset:0;background:rgba(4,12,20,.7);display:none;align-items:center;justify-content:center;
+  .modal-back{position:fixed;inset:0;background:rgba(4,12,20,.7);display:none;padding:calc(var(--sat) + 16px) calc(var(--sar) + 16px) calc(var(--sab) + 16px) calc(var(--sal) + 16px);align-items:center;justify-content:center;
     z-index:3000;padding:20px;backdrop-filter:blur(6px);}
   .modal-back.show{display:flex;}
   .modal{background:var(--float);border:1px solid var(--line-2);border-radius:18px;width:100%;max-width:380px;
@@ -2133,7 +2142,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
   .tabbar{display:none;}
 
   @media (max-width:760px){
-    :root{ --tabh:54px; }
+    :root{ --tabh:52px; }
 
     body{overflow-x:hidden;}
 
@@ -2156,7 +2165,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
       display:grid;grid-template-columns:repeat(5,1fr);align-items:end;
       height:var(--tabbar-h);
       padding:0 calc(var(--sal) + 4px) var(--tabpad) calc(var(--sar) + 4px);
-      background:linear-gradient(180deg,rgba(9,29,48,.86),rgba(5,20,34,.97));
+      background:linear-gradient(180deg,rgba(9,29,48,.9),rgba(5,20,34,.98));
       backdrop-filter:blur(22px) saturate(1.3);
       -webkit-backdrop-filter:blur(22px) saturate(1.3);
       border-top:1px solid var(--line-2);
@@ -2203,10 +2212,11 @@ svg.leaflet-image-layer.leaflet-interactive path {
       display:flex;flex-direction:column;align-items:center;justify-content:center;
       color:var(--on-accent);-webkit-tap-highlight-color:transparent;
     }
-    /* Sits inside the bar, not above it. A raised button overhangs the bar's
-       own edge by design, which is exactly what "the icon is outside the
-       container" means — so it is a normal tab now: the chip and the glyph are
-       both centred on the cell and neither crosses the bar. */
+    /* Raised above the bar again — that overhang is the point of it. The
+       complaint was the glyph, which sat off-centre inside the button because
+       a label underneath was pushing it up. Both the chip and the glyph are
+       centred on the same box now, so the icon is dead centre of the button
+       however far the button rides out of the bar. */
     .tab-scan{
       position:relative;appearance:none;border:0;background:none;padding:0;
       width:auto;height:var(--tabh);
@@ -2214,18 +2224,20 @@ svg.leaflet-image-layer.leaflet-interactive path {
       color:var(--on-accent);-webkit-tap-highlight-color:transparent;
     }
     .tab-scan .ts-ring{
-      position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
-      width:42px;height:42px;border-radius:14px;
+      position:absolute;left:50%;top:-24px;transform:translateX(-50%);
+      width:54px;height:54px;border-radius:18px;
       background:linear-gradient(160deg,var(--btn-1),var(--btn-2));
-      box-shadow:0 6px 16px -8px rgba(56,189,248,.55);
+      box-shadow:0 10px 24px -8px rgba(56,189,248,.55),
+                 0 0 0 4px var(--tab-notch);
       transition:transform 160ms cubic-bezier(.32,.72,0,1);
     }
+    /* identical box to the ring, so the glyph cannot drift off centre */
     .tab-scan > svg{
-      position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
-      width:42px;height:42px;padding:10px;box-sizing:border-box;
+      position:absolute;left:50%;top:-24px;transform:translateX(-50%);
+      width:54px;height:54px;padding:12px;box-sizing:border-box;
       margin:0;color:var(--on-accent);z-index:1;pointer-events:none;
     }
-    .tab-scan:active .ts-ring{transform:translate(-50%,-50%) scale(.92);}
+    .tab-scan:active .ts-ring{transform:translateX(-50%) scale(.92);}
 
     /* ---- header ---- */
     .stage-head{padding:0 2px;gap:10px;}
@@ -2436,8 +2448,8 @@ svg.leaflet-image-layer.leaflet-interactive path {
     :root{ --tabh:46px; }
     .tab-l{display:none;}
     .tab svg{width:22px;height:22px;}
-    .tab-scan .ts-ring{width:36px;height:36px;border-radius:12px;}
-    .tab-scan > svg{width:36px;height:36px;padding:8px;}
+    .tab-scan .ts-ring{top:-16px;width:44px;height:44px;border-radius:15px;}
+    .tab-scan > svg{top:-16px;width:44px;height:44px;padding:10px;}
     .stage-head{display:none;}
   }
 
@@ -17529,13 +17541,7 @@ var qrcode = function() {
     /* ---- hero photo + readings ---- */
     var mm = document.getElementById('ovMiniMap');
     mm.style.backgroundImage = 'url("' + baseMap.url + '")';
-    var dots = '';
-    beds.forEach(function(b){
-      var col = b.status==='free' ? 'var(--free)' : b.status==='occupied' ? 'var(--occ)'
-              : b.status==='reserved' ? 'var(--res)' : 'var(--maint)';
-      dots += '<span class="hm-dot '+(b.kind||'bed')+'" style="left:'+(b.nx*100)+'%;top:'+(b.ny*100)+'%;background:'+col+'"></span>';
-    });
-    mm.innerHTML = dots;
+    paintHeroDots();
 
     /* One strip of readings along the foot of the photo, in the order a shift
        actually asks them: what can I sell, what is out, and the split. */
@@ -17701,6 +17707,43 @@ var qrcode = function() {
       });
     }
   }
+  /* The dots were placed at nx/ny as a percentage of the CARD. The photo is
+     drawn with background-size:cover, so on any card whose shape differs from
+     the photo's 2600x1950 it is scaled up and cropped — and a percentage of
+     the card stops meaning the same thing as a percentage of the photo. The
+     wider the card, the further the beds drifted from where they actually are.
+     This repeats the cover calculation and places each dot in pixels. */
+  function paintHeroDots(){
+    var mm = document.getElementById('ovMiniMap');
+    if(!mm) return;
+    var W = mm.clientWidth, H = mm.clientHeight;
+    if(!W || !H) return;
+    var scale = Math.max(W / baseMap.w, H / baseMap.h);   /* == cover */
+    var dw = baseMap.w * scale, dh = baseMap.h * scale;
+    /* matches background-position: center 58% */
+    var offX = (W - dw) * 0.5, offY = (H - dh) * 0.58;
+    var out = '';
+    beds.forEach(function(b){
+      var col = b.status==='free' ? 'var(--free)' : b.status==='occupied' ? 'var(--occ)'
+              : b.status==='reserved' ? 'var(--res)' : 'var(--maint)';
+      var x = offX + b.nx * dw, y = offY + b.ny * dh;
+      if(x < -6 || x > W + 6 || y < -6 || y > H + 6) return;   /* cropped away */
+      out += '<span class="hm-dot ' + (b.kind||'bed') + '" style="left:' + x.toFixed(1)
+           + 'px;top:' + y.toFixed(1) + 'px;background:' + col + '"></span>';
+    });
+    mm.innerHTML = out;
+  }
+
+  /* the card changes shape on rotate and at every breakpoint, so the dots have
+     to be replaced, not just reflowed */
+  (function(){
+    var t = null;
+    window.addEventListener('resize', function(){
+      clearTimeout(t);
+      t = setTimeout(function(){ if(currentView === 'overview') paintHeroDots(); }, 120);
+    });
+  })();
+
   function shortDay(iso){
     var d = new Date(iso);
     if(isNaN(d.getTime())) return String(iso||'').slice(-5);

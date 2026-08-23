@@ -1024,7 +1024,11 @@ svg.leaflet-image-layer.leaflet-interactive path {
   /* Painted on the root as well as the body: with viewport-fit=cover the canvas
      extends past the body box, and an unpainted canvas falls back to white. */
   html{height:100%;background:var(--bg-0);}
-  body{height:100%;}
+  /* Fixed to the viewport rather than sized in percentages: in an installed
+     iOS web app a percentage height resolves against a box that does not
+     always include the safe areas, which left the bar short of the bottom
+     edge with bare page showing underneath. */
+  body{position:fixed;inset:0;height:auto;}
   body{
     margin:0;color:var(--ink);overflow:hidden;
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
@@ -2149,7 +2153,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
   .tabbar{display:none;}
 
   @media (max-width:760px){
-    :root{ --tabh:50px; --tabraise:24px; }
+    :root{ --tabh:56px; --tabraise:0px; }
 
     body{overflow-x:hidden;}
 
@@ -2235,8 +2239,8 @@ svg.leaflet-image-layer.leaflet-interactive path {
       color:var(--on-accent);-webkit-tap-highlight-color:transparent;
     }
     .tab-scan .ts-ring{
-      position:absolute;left:50%;top:-24px;transform:translateX(-50%);
-      width:54px;height:54px;border-radius:18px;
+      position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+      width:46px;height:46px;border-radius:15px;
       background:linear-gradient(160deg,var(--btn-1),var(--btn-2));
       /* No punched-out ring: the button stands proud of the bar, so half of
          that ring fell on the page above it and read as a stray pale box
@@ -2247,11 +2251,11 @@ svg.leaflet-image-layer.leaflet-interactive path {
     }
     /* identical box to the ring, so the glyph cannot drift off centre */
     .tab-scan > svg{
-      position:absolute;left:50%;top:-24px;transform:translateX(-50%);
-      width:54px;height:54px;padding:12px;box-sizing:border-box;
+      position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+      width:46px;height:46px;padding:11px;box-sizing:border-box;
       margin:0;color:var(--on-accent);z-index:1;pointer-events:none;
     }
-    .tab-scan:active .ts-ring{transform:translateX(-50%) scale(.92);}
+    .tab-scan:active .ts-ring{transform:translate(-50%,-50%) scale(.92);}
 
     /* ---- header ---- */
     .stage-head{padding:0 2px;gap:10px;}
@@ -2459,11 +2463,11 @@ svg.leaflet-image-layer.leaflet-interactive path {
   /* A phone on its side has almost no vertical room; give the height back to
      the content by flattening the tab bar rather than hiding navigation. */
   @media (max-width:900px) and (orientation:landscape) and (max-height:460px){
-    :root{ --tabh:46px; --tabraise:18px; }
+    :root{ --tabh:46px; --tabraise:0px; }
     .tab-l{display:none;}
     .tab svg{width:22px;height:22px;}
-    .tab-scan .ts-ring{top:-16px;width:44px;height:44px;border-radius:15px;}
-    .tab-scan > svg{top:-16px;width:44px;height:44px;padding:10px;}
+    .tab-scan .ts-ring{width:38px;height:38px;border-radius:13px;}
+    .tab-scan > svg{width:38px;height:38px;padding:9px;}
     .stage-head{display:none;}
   }
 

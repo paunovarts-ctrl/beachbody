@@ -1752,6 +1752,17 @@ svg.leaflet-image-layer.leaflet-interactive path {
     color:var(--ink-2);font-size:12px;font-weight:600;}
   .scan-x:hover{background:var(--card-2);color:var(--ink);}
   .scan-body{flex:1;display:flex;gap:14px;min-height:0;}
+  /* Hidden on desktop, where the top-right button is a mouse-move away. */
+  .scan-foot{display:none;flex-shrink:0;}
+  .scan-done{
+    width:100%;height:56px;border-radius:16px;border:1px solid var(--line-2);
+    background:var(--card);color:var(--ink);
+    display:flex;align-items:center;justify-content:center;gap:10px;
+    font:inherit;font-size:15px;font-weight:700;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .scan-done svg{width:19px;height:19px;flex-shrink:0;color:var(--ink-3);}
+  .scan-done:active{background:var(--card-2);transform:scale(.99);}
   .scan-stage{flex:1;position:relative;background:#000;border-radius:var(--r);overflow:hidden;min-width:0;
     border:1px solid var(--line);}
   #scanVideo{width:100%;height:100%;object-fit:cover;display:block;}
@@ -2303,6 +2314,12 @@ svg.leaflet-image-layer.leaflet-interactive path {
     .theme-chip{padding:0 11px;}
     .more-chip{display:inline-flex;height:40px;padding:0 11px;}
     .more-chip span{display:none;}   /* icon alone, same as the sun chip */
+
+    /* ---- scanner ----
+       One close control, in the thumb zone, at a size a wet hand can hit. */
+    .scan-foot{display:flex;}
+    .scan-top .scan-x{display:none;}
+    .scan-top .ttl{font-size:15px;}
 
     /* ---- type floor ----
        Every one of these carried a real number or a real label at 9.5–11.5px.
@@ -2998,6 +3015,15 @@ svg.leaflet-image-layer.leaflet-interactive path {
       </div>
       <div id="scanFeed"><div class="sf-empty">Point the camera at a bed QR label</div></div>
     </div>
+  </div>
+  <!-- Phones close from down here. The top-right button is 34px in the far
+       corner of a 6.5" screen held one-handed, which is the hardest pixel on
+       the device to hit while also holding a QR label steady. -->
+  <div class="scan-foot">
+    <button class="scan-done" id="scanDoneBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      <span>Close scanner</span>
+    </button>
   </div>
 </div>
 
@@ -17234,6 +17260,7 @@ var qrcode = function() {
     'Operator':'Operater','Passcode':'Lozinka','Enter control panel':'Uđi u upravljačku ploču',
     'Live':'Uživo','Saved':'Spremljeno','✓ Saved':'✓ Spremljeno',
     'Language':'Jezik','Fullscreen':'Cijeli zaslon','More':'Više',
+    'Close scanner':'Zatvori skener',
     'Fullscreen (F)':'Cijeli zaslon (F)','Sign out':'Odjava','Exit fullscreen':'Izađi iz cijelog zaslona',
     /* --- views --- */
     'Overview':'Pregled','Beach map':'Karta plaže','Zones & setup':'Zone i postava',
@@ -18250,6 +18277,7 @@ var qrcode = function() {
   document.getElementById('printQrBtn').addEventListener('click', printLabels);
   var pmBtn = document.getElementById('printMarkersBtn'); if(pmBtn) pmBtn.addEventListener('click', printLabels);
   document.getElementById('scanCloseBtn').addEventListener('click', closeScanner);
+  document.getElementById('scanDoneBtn').addEventListener('click', closeScanner);
   document.querySelectorAll('.scan-modes button[data-mode]').forEach(function(b){
     b.addEventListener('click', function(){
       scan.mode = b.getAttribute('data-mode');

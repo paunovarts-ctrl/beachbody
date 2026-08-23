@@ -911,6 +911,20 @@ svg.leaflet-image-layer.leaflet-interactive path {
   :root[data-theme="light"] .rail-btn.active,
   :root[data-theme="light"] .tn-btn.active:not(.on){border-color:rgba(3,105,161,.35);}
 
+  /* Two surfaces stay dark in sun mode on purpose — the scan prompt, which is
+     the primary action and earns being the one dark block on the page, and the
+     install sheet. Both inherited near-black body ink, which on their own dark
+     gradients was invisible. They carry light ink instead of being lightened,
+     because their contrast is the point. */
+  :root[data-theme="light"] .promo h3{color:#F4FAFE;}
+  :root[data-theme="light"] .promo h3 em{color:#A9E4FD;}
+  :root[data-theme="light"] .promo{border-color:rgba(9,44,70,.28);}
+
+  :root[data-theme="light"] .ios-card{background:#FFFFFF;border-color:var(--line-2);}
+  :root[data-theme="light"] .ios-card h3{color:var(--ink);}
+  :root[data-theme="light"] .ios-card > p{color:var(--ink-2);}
+  :root[data-theme="light"] .ios-steps li{color:var(--ink);}
+
   /* The status buttons on the spot sheet: same idea, darker tints so the four
      choices stay distinguishable against a white sheet. */
   :root[data-theme="light"] .bc-acts .a-free{border-color:rgba(4,120,87,.42);background:rgba(4,120,87,.10);}
@@ -1912,8 +1926,6 @@ svg.leaflet-image-layer.leaflet-interactive path {
   .hero-map:after{content:'';position:absolute;inset:0;pointer-events:none;
     background:linear-gradient(180deg, rgba(4,18,31,.55) 0%, rgba(4,18,31,0) 22%,
                                        rgba(4,18,31,0) 44%, rgba(4,18,31,.86) 100%);}
-  .hero-card:hover .hero-map{transform:scale(1.012);}
-  .hero-map{transition:transform 400ms cubic-bezier(.32,.72,0,1);}
 
   .hm-dot{position:absolute;width:7px;height:7px;border-radius:2px;transform:translate(-50%,-50%);
     box-shadow:0 0 0 1px rgba(0,0,0,.55), 0 0 6px rgba(0,0,0,.4);z-index:1;}

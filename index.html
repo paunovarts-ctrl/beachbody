@@ -1837,6 +1837,37 @@ svg.leaflet-image-layer.leaflet-interactive path {
   :root[data-theme="light"] .theme-chip .ic-sun{display:none;}
   :root[data-theme="light"] .theme-chip .ic-moon{display:block;}
 
+  /* Phone overflow sheet. The rail carries the guide, language, sound,
+     fullscreen and sign-out, and the rail is display:none on a phone — which
+     left all five with no way in at all. The chip only exists at that
+     breakpoint; on desktop the rail is still the way to reach them. */
+  .more-chip{display:none;cursor:pointer;}
+  .more-chip svg{width:17px;height:17px;flex-shrink:0;}
+  .ms-back{position:fixed;inset:0;z-index:1700;background:rgba(4,12,20,.62);
+    display:none;align-items:flex-end;justify-content:center;}
+  .ms-back.show{display:flex;}
+  .ms-panel{
+    width:100%;max-width:520px;background:var(--float);
+    border:1px solid var(--line-2);border-bottom:0;border-radius:20px 20px 0 0;
+    padding:6px 10px calc(var(--sab) + 14px);
+    display:flex;flex-direction:column;gap:1px;
+    animation:msIn 280ms cubic-bezier(.32,.72,0,1);
+  }
+  @keyframes msIn{from{transform:translateY(18px);opacity:0;}to{transform:none;opacity:1;}}
+  .ms-grip{width:38px;height:4px;border-radius:99px;background:var(--line-3);margin:7px auto 9px;}
+  .ms-row{
+    appearance:none;border:0;background:none;width:100%;border-radius:14px;
+    display:flex;align-items:center;gap:14px;padding:0 12px;height:54px;
+    color:var(--ink);font:inherit;font-size:14px;font-weight:600;text-align:left;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .ms-row:active{background:var(--card-2);}
+  .ms-row svg{width:21px;height:21px;flex-shrink:0;color:var(--ink-3);}
+  .ms-row .ms-l{flex:1;min-width:0;}
+  .ms-row .ms-v{font-size:12px;font-weight:700;color:var(--accent);letter-spacing:.06em;}
+  .ms-row.danger{color:var(--occ);}
+  .ms-row.danger svg{color:var(--occ);}
+
   .install-chip{
     border-color:rgba(125,211,252,.45);background:rgba(56,189,248,.14);color:var(--accent-2);
     font-weight:700;cursor:pointer;gap:7px;
@@ -2260,11 +2291,18 @@ svg.leaflet-image-layer.leaflet-interactive path {
     /* ---- header ---- */
     .stage-head{padding:0 2px;gap:10px;}
     .stage-title h1{font-size:19px;}
-    .stage-title p{font-size:12px;color:var(--ink-3);}
+    /* Two chips now sit to the right of this, and the subtitle was long enough
+       to wrap "3 zones" onto its own line and push the whole page down. It
+       truncates instead — the beach name is the part that has to survive. */
+    .stage-title{min-width:0;}
+    .stage-title p{font-size:12px;color:var(--ink-3);
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .stage-chips{display:none;}
     .install-chip,.theme-chip{height:40px;padding:0 13px;font-size:12.5px;}
     .theme-l{display:none;}          /* the icon alone is unambiguous */
     .theme-chip{padding:0 11px;}
+    .more-chip{display:inline-flex;height:40px;padding:0 11px;}
+    .more-chip span{display:none;}   /* icon alone, same as the sun chip */
 
     /* ---- type floor ----
        Every one of these carried a real number or a real label at 9.5–11.5px.
@@ -2591,6 +2629,12 @@ svg.leaflet-image-layer.leaflet-interactive path {
       <button class="hchip install-chip" id="installBtn" hidden>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v11"/><path d="M8 10l4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
         <span>Install</span>
+      </button>
+
+      <!-- Phones only: opens the five controls that live on the rail. -->
+      <button class="hchip more-chip" id="moreBtn" aria-label="More" aria-haspopup="dialog" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/></svg>
+        <span>More</span>
       </button>
       <div class="stage-chips">
         <span class="hchip saved-badge" id="savedBadge">Saved</span>
@@ -2970,6 +3014,21 @@ svg.leaflet-image-layer.leaflet-interactive path {
 </div>
 
 <input type="file" id="importFile" accept="application/json,.json" style="display:none">
+
+<!-- The rail is replaced wholesale by .tabbar on a phone, and the tab bar
+     only rebuilds five of its destinations. These are the rest. Each row
+     delegates to the rail control rather than duplicating its logic, so
+     there is still exactly one implementation of each. -->
+<div class="ms-back" id="moreSheet">
+  <div class="ms-panel" role="dialog" aria-modal="true" aria-label="More">
+    <div class="ms-grip"></div>
+    <button class="ms-row" data-more="guide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H19v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H19v3H6.5A2.5 2.5 0 0 1 4 20.5z"/><path d="M8.5 7.5h6M8.5 11h4"/></svg><span class="ms-l">How it works</span></button>
+    <button class="ms-row" data-more="lang"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18z"/></svg><span class="ms-l">Language</span><span class="ms-v" id="msLang">EN</span></button>
+    <button class="ms-row" data-more="sfx"><span id="msSfxIc"></span><span class="ms-l" id="msSfx">Sound on</span></button>
+    <button class="ms-row" data-more="fs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5.5A1.5 1.5 0 0 1 5.5 4H9M20 9V5.5A1.5 1.5 0 0 0 18.5 4H15M4 15v3.5A1.5 1.5 0 0 0 5.5 20H9M20 15v3.5a1.5 1.5 0 0 1-1.5 1.5H15"/></svg><span class="ms-l">Fullscreen</span></button>
+    <button class="ms-row danger" data-more="logout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"/><path d="M10 16l-4-4 4-4M6 12h9"/></svg><span class="ms-l">Sign out</span></button>
+  </div>
+</div>
 
 <div id="toastWrap"></div>
 
@@ -17174,6 +17233,7 @@ var qrcode = function() {
     'Incorrect username or password':'Netočno korisničko ime ili lozinka',
     'Operator':'Operater','Passcode':'Lozinka','Enter control panel':'Uđi u upravljačku ploču',
     'Live':'Uživo','Saved':'Spremljeno','✓ Saved':'✓ Spremljeno',
+    'Language':'Jezik','Fullscreen':'Cijeli zaslon','More':'Više',
     'Fullscreen (F)':'Cijeli zaslon (F)','Sign out':'Odjava','Exit fullscreen':'Izađi iz cijelog zaslona',
     /* --- views --- */
     'Overview':'Pregled','Beach map':'Karta plaže','Zones & setup':'Zone i postava',
@@ -17988,6 +18048,47 @@ var qrcode = function() {
       if(e.target.closest(TAPPY)) sfx('tap');
     }, true);
   })();
+  /* Phone overflow sheet. Every row forwards to the rail control that already
+     owns the behaviour — clicking a display:none button still runs its handler,
+     so language, sound, fullscreen and sign-out keep one implementation each. */
+  (function(){
+    var sheet = document.getElementById('moreSheet');
+    var btn   = document.getElementById('moreBtn');
+    if(!sheet || !btn) return;
+
+    function sync(){
+      var lb = document.getElementById('langBtn'), ml = document.getElementById('msLang');
+      if(lb && ml) ml.textContent = lb.querySelector('span').textContent;
+      var sb = document.getElementById('sfxBtn'), mi = document.getElementById('msSfxIc'),
+          ms = document.getElementById('msSfx');
+      if(sb && mi) mi.innerHTML = (SFX_ON ? SFX_ICON_ON : SFX_ICON_OFF);
+      if(ms){ ms.textContent = t(SFX_ON ? 'Sound on' : 'Sound off'); }
+    }
+    function open(){ sync(); sheet.classList.add('show'); btn.setAttribute('aria-expanded','true'); }
+    function close(){ sheet.classList.remove('show'); btn.setAttribute('aria-expanded','false'); }
+
+    btn.addEventListener('click', open);
+    sheet.addEventListener('click', function(e){ if(e.target === sheet) close(); });
+    document.addEventListener('keydown', function(e){
+      if(e.key === 'Escape' && sheet.classList.contains('show')) close(); });
+
+    var ACT = {
+      guide:  function(){ setView('guide'); },
+      lang:   function(){ document.getElementById('langBtn').click(); },
+      sfx:    function(){ document.getElementById('sfxBtn').click(); },
+      fs:     function(){ document.getElementById('fsBtn').click(); },
+      logout: function(){ document.getElementById('logoutBtn').click(); }
+    };
+    sheet.querySelectorAll('.ms-row').forEach(function(r){
+      r.addEventListener('click', function(){
+        var k = r.getAttribute('data-more');
+        /* a toggle should show its own result, so those two keep the sheet up */
+        if(k === 'lang' || k === 'sfx'){ ACT[k](); sync(); return; }
+        close(); ACT[k]();
+      });
+    });
+  })();
+
   ['railScan','mapScanBtn','tabScan'].forEach(function(id){
     var b = document.getElementById(id);
     if(b) b.addEventListener('click', openScanner);

@@ -758,12 +758,14 @@ svg.leaflet-image-layer.leaflet-interactive path {
     --sar:env(safe-area-inset-right,0px);
 
     --tabh:0px;            /* phone tab bar content height; set in the phone block */
-    /* iOS reports 34px below the home indicator, but the indicator itself only
-       needs about 21px of clearance — reserving the full inset under an already
-       tall bar is what left a broad empty band at the bottom of the screen.
-       Ten of those pixels are reclaimed, which still clears the indicator. */
-    --tabpad:max(calc(var(--sab) - 24px), 0px);
-    --tabbar-h:calc(var(--tabh) + var(--tabpad));
+    /* Two different numbers, and conflating them is what caused both faults.
+       The bar's HEIGHT has to include the whole home-indicator inset, or its
+       background stops short of the screen and bare page shows underneath as a
+       white band. How far the CONTENT sits off the bottom is separate: the
+       full 34px iOS reports puts the labels visibly high, and the indicator
+       only needs about half of it, so the content is allowed to come down. */
+    --tabpad:max(calc(var(--sab) - 16px), 0px);   /* content inset */
+    --tabbar-h:calc(var(--tabh) + var(--sab));    /* painted height */
     --hit:44px;            /* smallest thing a thumb should have to hit */
 
     /* Roles rather than colours, so the light theme below can restate the
@@ -1015,7 +1017,10 @@ svg.leaflet-image-layer.leaflet-interactive path {
   :root[data-theme="light"] .bc-acts .a-res.on,
   :root[data-theme="light"] .bc-acts .a-maint.on{color:#FFFFFF;}
   *{box-sizing:border-box;}
-  html,body{height:100%;}
+  /* Painted on the root as well as the body: with viewport-fit=cover the canvas
+     extends past the body box, and an unpainted canvas falls back to white. */
+  html{height:100%;background:var(--bg-0);}
+  body{height:100%;}
   body{
     margin:0;color:var(--ink);overflow:hidden;
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
@@ -2217,7 +2222,11 @@ svg.leaflet-image-layer.leaflet-interactive path {
        however far the button rides out of the bar. */
     .tab-scan{
       position:relative;appearance:none;border:0;background:none;padding:0;
-      width:auto;height:var(--tabh);
+      /* Stretched to the full content box rather than sized to a tab, so the
+         button is positioned from the BAR's top edge. Sized to a tab it was
+         offset by whatever slack the safe-area padding left, which made it
+         stand 23px proud on one device and 8px on another. */
+      width:auto;align-self:stretch;height:auto;
       display:flex;align-items:center;justify-content:center;
       color:var(--on-accent);-webkit-tap-highlight-color:transparent;
     }

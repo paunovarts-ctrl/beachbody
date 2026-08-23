@@ -766,6 +766,10 @@ svg.leaflet-image-layer.leaflet-interactive path {
        only needs about half of it, so the content is allowed to come down. */
     --tabpad:max(calc(var(--sab) - 16px), 0px);   /* content inset */
     --tabbar-h:calc(var(--tabh) + var(--sab));    /* painted height */
+    /* The scan button stands proud of the bar, and that overhang covers the
+       page — it was sitting on top of the last row of the takings card. Space
+       reserved above the bar has to include it. */
+    --tabraise:0px;
     --hit:44px;            /* smallest thing a thumb should have to hit */
 
     /* Roles rather than colours, so the light theme below can restate the
@@ -1805,7 +1809,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
   .modal-actions{display:flex;gap:10px;padding:20px 22px 22px;}
   .modal-actions .btn{flex:1;justify-content:center;height:40px;}
 
-  #toastWrap{position:fixed;bottom:calc(var(--tabbar-h) + 18px);left:50%;transform:translateX(-50%);
+  #toastWrap{position:fixed;bottom:calc(var(--tabbar-h) + var(--tabraise) + 14px);left:50%;transform:translateX(-50%);
     display:flex;flex-direction:column;gap:8px;z-index:2500;align-items:center;
     width:min(520px, calc(100vw - 32px));pointer-events:none;}
   /* Was nowrap with a hard 2.9s fade baked into the animation, so anything
@@ -2145,7 +2149,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
   .tabbar{display:none;}
 
   @media (max-width:760px){
-    :root{ --tabh:50px; }
+    :root{ --tabh:50px; --tabraise:24px; }
 
     body{overflow-x:hidden;}
 
@@ -2156,7 +2160,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
          spills off BOTH ends and the header scrolls out of reach. */
       justify-content:flex-start;
       padding:calc(var(--sat) + 8px) calc(var(--sar) + 10px)
-              calc(var(--tabbar-h) + 8px) calc(var(--sal) + 10px);
+              calc(var(--tabbar-h) + var(--tabraise) + 8px) calc(var(--sal) + 10px);
       gap:10px;
     }
     .stage{max-width:none;gap:10px;}
@@ -2307,7 +2311,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
     .bed-card{
       position:fixed !important;
       left:0 !important;right:0 !important;top:auto !important;
-      bottom:var(--tabbar-h) !important;
+      bottom:calc(var(--tabbar-h) + var(--tabraise)) !important;
       width:auto !important;max-width:none;
       border-radius:20px 20px 0 0;
       border-left:0;border-right:0;border-bottom:0;
@@ -2455,7 +2459,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
   /* A phone on its side has almost no vertical room; give the height back to
      the content by flattening the tab bar rather than hiding navigation. */
   @media (max-width:900px) and (orientation:landscape) and (max-height:460px){
-    :root{ --tabh:46px; }
+    :root{ --tabh:46px; --tabraise:18px; }
     .tab-l{display:none;}
     .tab svg{width:22px;height:22px;}
     .tab-scan .ts-ring{top:-16px;width:44px;height:44px;border-radius:15px;}

@@ -762,8 +762,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
        needs about 21px of clearance — reserving the full inset under an already
        tall bar is what left a broad empty band at the bottom of the screen.
        Ten of those pixels are reclaimed, which still clears the indicator. */
-    --tab-notch:#0A1E30;   /* the bar's own colour, punched around the button */
-    --tabpad:max(calc(var(--sab) - 20px), 0px);
+    --tabpad:max(calc(var(--sab) - 24px), 0px);
     --tabbar-h:calc(var(--tabh) + var(--tabpad));
     --hit:44px;            /* smallest thing a thumb should have to hit */
 
@@ -848,7 +847,6 @@ svg.leaflet-image-layer.leaflet-interactive path {
     --body-glow-1:rgba(3,105,161,.07);
     --body-glow-2:rgba(4,120,87,.06);
     --map-void:#D8E5EE;
-    --tab-notch:#F4F8FB;
     --scrim:rgba(12,32,48,.42);
 
     --shadow:0 14px 34px -20px rgba(9,44,70,.42);
@@ -2142,7 +2140,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
   .tabbar{display:none;}
 
   @media (max-width:760px){
-    :root{ --tabh:52px; }
+    :root{ --tabh:50px; }
 
     body{overflow-x:hidden;}
 
@@ -2227,8 +2225,11 @@ svg.leaflet-image-layer.leaflet-interactive path {
       position:absolute;left:50%;top:-24px;transform:translateX(-50%);
       width:54px;height:54px;border-radius:18px;
       background:linear-gradient(160deg,var(--btn-1),var(--btn-2));
-      box-shadow:0 10px 24px -8px rgba(56,189,248,.55),
-                 0 0 0 4px var(--tab-notch);
+      /* No punched-out ring: the button stands proud of the bar, so half of
+         that ring fell on the page above it and read as a stray pale box
+         around the button. A plain shadow does the lifting instead. */
+      box-shadow:0 8px 20px -6px rgba(3,105,161,.45),
+                 0 2px 6px -2px rgba(3,105,161,.35);
       transition:transform 160ms cubic-bezier(.32,.72,0,1);
     }
     /* identical box to the ring, so the glyph cannot drift off centre */

@@ -776,6 +776,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
     --body-glow-1:rgba(56,189,248,.16);
     --body-glow-2:rgba(27,175,122,.12);
     --map-void:#0A2338;            /* what surrounds the photo on the map */
+    --tab-notch:#0A1E30;           /* the bar colour the scan button punches through */
     --scrim:rgba(2,10,18,.6);
   }
 
@@ -841,6 +842,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
     --body-glow-1:rgba(3,105,161,.07);
     --body-glow-2:rgba(4,120,87,.06);
     --map-void:#D8E5EE;
+    --tab-notch:#FFFFFF;
     --scrim:rgba(12,32,48,.42);
 
     --shadow:0 14px 34px -20px rgba(9,44,70,.42);
@@ -1269,7 +1271,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
   .legend i{width:9px;height:9px;border-radius:3px;display:inline-block;}
   .toolbar-spacer{flex:1;}
 
-  .zone-select{display:none;}          /* phones only — see the phone layer */
+  .zonepick{display:none;}             /* phones only — see the phone layer */
   .chipbar{display:flex;align-items:stretch;gap:8px;overflow-x:auto;flex-shrink:0;padding-bottom:2px;}
   .chipbar::-webkit-scrollbar{height:0;}
   .chipbar .lbl{display:none;}
@@ -2157,7 +2159,10 @@ svg.leaflet-image-layer.leaflet-interactive path {
     }
     .tab{
       appearance:none;border:0;background:none;
-      height:var(--tabh);min-width:0;
+      /* .tab also carries .tn-btn so setView can toggle it, and the rail pins
+         .tn-btn to a 42px square. That squashed each cell to 42px inside a
+         73px column, which is why "Overview" rendered as "Overv...". */
+      width:auto;min-width:0;height:var(--tabh);
       display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
       color:var(--ink-3);font:inherit;padding:0 2px;
       -webkit-tap-highlight-color:transparent;
@@ -2184,21 +2189,34 @@ svg.leaflet-image-layer.leaflet-interactive path {
 
     /* Scanning is most of a shift, so it leaves the row and gets the biggest
        target on the screen. */
+    /* The button rides above the bar, but its label has to sit on the same
+       line as the other four — it was 13px lower, almost touching the edge.
+       Ring and glyph are both taken out of flow and the label is offset by
+       what an icon would have occupied, so all five labels line up. */
     .tab-scan{
       position:relative;appearance:none;border:0;background:none;padding:0;
-      height:var(--tabh);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
-      gap:3px;color:var(--on-accent);-webkit-tap-highlight-color:transparent;
+      width:auto;height:var(--tabh);
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      color:var(--on-accent);-webkit-tap-highlight-color:transparent;
     }
     .tab-scan .ts-ring{
       position:absolute;left:50%;top:-16px;transform:translateX(-50%);
       width:58px;height:58px;border-radius:20px;
-      background:linear-gradient(160deg,#5BD0FD,#1E90D6);
-      box-shadow:0 10px 26px -8px rgba(56,189,248,.75),
-                 0 0 0 4px rgba(5,20,34,.92);
+      background:linear-gradient(160deg,var(--btn-1),var(--btn-2));
+      /* The outer ring punches the bar's own colour around the button so it
+         reads as floating through it, so it has to match the bar per theme.
+         It was hardcoded near-black and drew a dark halo on the white bar. */
+      box-shadow:0 10px 26px -8px rgba(56,189,248,.45),
+                 0 0 0 4px var(--tab-notch);
       transition:transform 160ms cubic-bezier(.32,.72,0,1);
     }
-    .tab-scan svg{position:relative;width:27px;height:27px;margin-bottom:11px;color:var(--on-accent);}
-    .ts-l{position:relative;font-size:10.5px;font-weight:700;color:var(--accent-2);line-height:1;}
+    .tab-scan > svg{
+      position:absolute;left:50%;top:-16px;transform:translateX(-50%);
+      width:58px;height:58px;padding:16px;box-sizing:border-box;
+      margin:0;color:var(--on-accent);z-index:1;
+    }
+    .ts-l{position:relative;margin-top:26px;font-size:10.5px;font-weight:700;
+      color:var(--accent);line-height:1;}
     .tab-scan:active .ts-ring{transform:translateX(-50%) scale(.93);}
 
     /* ---- header ---- */
@@ -2340,21 +2358,44 @@ svg.leaflet-image-layer.leaflet-interactive path {
     /* ---- controls reach a real thumb target ---- */
     .btn{height:42px;padding:0 16px;font-size:13px;}
     .chipbar{display:none;}
-    .zone-select{
-      display:flex;align-items:center;gap:10px;position:relative;flex-shrink:0;
-      height:52px;padding:0 14px;border-radius:var(--r-s);
-      border:1px solid var(--line-2);background:var(--card);
+
+    .zonepick{display:block;position:relative;flex-shrink:0;z-index:1000;}
+    .zp-trigger{
+      width:100%;height:52px;padding:0 14px;border-radius:var(--r-s);
+      border:1px solid var(--line-2);background:var(--card);color:var(--ink);
+      display:flex;align-items:center;gap:10px;font:inherit;text-align:left;
+      -webkit-tap-highlight-color:transparent;
     }
-    .zs-cap{font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;
-      color:var(--ink-3);flex-shrink:0;}
-    .zone-select select{
-      appearance:none;-webkit-appearance:none;
-      flex:1;min-width:0;height:100%;border:0;background:none;outline:none;
-      font-size:16px;font-weight:600;color:var(--ink);
-      padding:0 22px 0 0;text-overflow:ellipsis;
+    .zp-dot{width:11px;height:11px;border-radius:3px;flex-shrink:0;background:var(--ink-3);}
+    .zp-name{flex:1;min-width:0;font-size:15px;font-weight:700;letter-spacing:-.01em;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .zp-cnt{font-size:13px;font-weight:600;color:var(--ink-3);flex-shrink:0;
+      font-variant-numeric:tabular-nums;}
+    .zp-caret{width:18px;height:18px;color:var(--ink-3);flex-shrink:0;
+      transition:transform 180ms cubic-bezier(.32,.72,0,1);}
+    .zonepick.open .zp-caret{transform:rotate(180deg);}
+    .zonepick.open .zp-trigger{border-color:var(--accent);}
+
+    .zp-menu{
+      position:absolute;left:0;right:0;top:calc(100% + 6px);
+      background:var(--float);border:1px solid var(--line-2);border-radius:var(--r-s);
+      box-shadow:0 22px 46px -20px rgba(0,0,0,.7);
+      padding:6px;display:none;max-height:52vh;overflow-y:auto;
+      -webkit-overflow-scrolling:touch;
     }
-    .zs-caret{position:absolute;right:12px;width:18px;height:18px;color:var(--ink-3);pointer-events:none;}
-    .zone-select:focus-within{border-color:var(--accent);}
+    .zonepick.open .zp-menu{display:block;}
+    .zp-opt{
+      width:100%;display:flex;align-items:center;gap:10px;
+      padding:0 10px;min-height:48px;border:0;border-radius:8px;
+      background:none;color:var(--ink);font:inherit;text-align:left;
+    }
+    .zp-opt .zp-dot{background:var(--ink-3);}
+    .zp-opt .n{flex:1;min-width:0;font-size:14.5px;font-weight:600;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .zp-opt .c{font-size:13px;color:var(--ink-3);flex-shrink:0;font-variant-numeric:tabular-nums;}
+    .zp-opt[aria-selected="true"]{background:var(--well);}
+    .zp-opt[aria-selected="true"] .n{color:var(--accent);}
+    .zp-opt:active{background:var(--card-2);}
     .mtool{width:var(--hit);height:var(--hit);}
     .mtool svg{width:20px;height:20px;}
     .map-tools{gap:8px;top:10px;right:10px;}
@@ -2564,16 +2605,22 @@ svg.leaflet-image-layer.leaflet-interactive path {
     <!-- ============ MAP ============ -->
     <section class="view" id="view-map">
       <div class="chipbar" id="chipbar"><span class="lbl">Zones</span></div>
-      <!-- Same choice as the chips, as a control that fits a phone. The chip
-           row needs horizontal scrolling below about 700px, which hides zones
-           off the right edge with nothing to say they are there. A native
-           select gets the platform's own picker, which is easier to hit with a
-           thumb and impossible to render half off-screen. -->
-      <label class="zone-select" for="zoneSelect">
-        <span class="zs-cap">Zone</span>
-        <select id="zoneSelect"></select>
-        <svg class="zs-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9.5l6 6 6-6"/></svg>
-      </label>
+      <!-- Same choice as the chips, as a control that fits a phone: the chip row
+           needs horizontal scrolling below about 700px, which hides zones off
+           the right edge with nothing to say they are there. Built by hand
+           rather than as a <select>, because a native select's popup is drawn
+           by the operating system and cannot be styled at all — it arrives as
+           a system list in a system font in the middle of the app. -->
+      <div class="zonepick" id="zonePick">
+        <button type="button" class="zp-trigger" id="zonePickBtn"
+                aria-haspopup="listbox" aria-expanded="false">
+          <span class="zp-dot" id="zonePickDot"></span>
+          <span class="zp-name" id="zonePickName">All beach</span>
+          <span class="zp-cnt" id="zonePickCnt"></span>
+          <svg class="zp-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9.5l6 6 6-6"/></svg>
+        </button>
+        <div class="zp-menu" id="zonePickMenu" role="listbox" tabindex="-1"></div>
+      </div>
       <div class="mapWrap">
         <div id="mapCanvas"></div>
         <div class="map-tools">
@@ -16193,18 +16240,28 @@ var qrcode = function() {
       bar.appendChild(chip);
     });
 
-    /* The phone's version of the same control. Built from the same numbers so
+    /* The phone's version of the same control, built from the same numbers so
        the two can never disagree; only one of them is ever visible. */
-    var sel = document.getElementById('zoneSelect');
-    if(sel){
-      var opts = '<option value="">All beach — ' + allC.free + ' free of ' + beds.length + '</option>';
+    var menu = document.getElementById('zonePickMenu');
+    if(menu){
+      var rows = [{id:'', name:'All beach', color:'#8FA9BC', free:allC.free, total:beds.length}];
       sections.forEach(function(sc){
         var list = bedsIn(sc), c = countBy(list);
-        opts += '<option value="' + sc.id + '">' + esc(sc.name)
-              + ' — ' + c.free + ' free of ' + list.length + '</option>';
+        rows.push({id:sc.id, name:sc.name, color:sc.color, free:c.free, total:list.length});
       });
-      sel.innerHTML = opts;
-      sel.value = activeSection === null ? '' : String(activeSection);
+      var cur = activeSection === null ? '' : activeSection;
+      menu.innerHTML = rows.map(function(r){
+        return '<button type="button" class="zp-opt" role="option" data-zone="' + esc(r.id) + '"'
+             + ' aria-selected="' + (r.id === cur ? 'true' : 'false') + '">'
+             + '<span class="zp-dot" style="background:' + esc(r.color) + '"></span>'
+             + '<span class="n">' + esc(r.name) + '</span>'
+             + '<span class="c">' + r.free + ' free / ' + r.total + '</span>'
+             + '</button>';
+      }).join('');
+      var active = rows.filter(function(r){ return r.id === cur; })[0] || rows[0];
+      document.getElementById('zonePickName').textContent = active.name;
+      document.getElementById('zonePickCnt').textContent  = active.free + ' free';
+      document.getElementById('zonePickDot').style.background = active.color;
     }
   }
   var CHECK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6"/></svg>';
@@ -17851,12 +17908,37 @@ var qrcode = function() {
     if(b) b.addEventListener('click', openScanner);
   });
 
+  /* The zone picker. A handful of lines rather than a <select>, because the
+     browser's own popup cannot be styled and arrives looking like a system
+     dialog dropped into the middle of the app. */
   (function(){
-    var sel = document.getElementById('zoneSelect');
-    if(!sel) return;
-    sel.addEventListener('change', function(){
-      if(sel.value === '') zoomToAll();
-      else zoomToSection(sel.value);
+    var wrap = document.getElementById('zonePick');
+    var btn  = document.getElementById('zonePickBtn');
+    var menu = document.getElementById('zonePickMenu');
+    if(!wrap || !btn || !menu) return;
+
+    function close(){ wrap.classList.remove('open'); btn.setAttribute('aria-expanded','false'); }
+    function open(){  wrap.classList.add('open');    btn.setAttribute('aria-expanded','true'); }
+
+    btn.addEventListener('click', function(e){
+      e.stopPropagation();
+      if(wrap.classList.contains('open')) close(); else open();
+    });
+
+    menu.addEventListener('click', function(e){
+      var opt = e.target.closest('.zp-opt');
+      if(!opt) return;
+      var id = opt.getAttribute('data-zone');
+      close();
+      if(id === '') zoomToAll(); else zoomToSection(id);
+    });
+
+    /* anywhere else, and the hardware back gesture's usual friend */
+    document.addEventListener('click', function(e){
+      if(!wrap.contains(e.target)) close();
+    });
+    document.addEventListener('keydown', function(e){
+      if(e.key === 'Escape') close();
     });
   })();
 

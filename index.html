@@ -762,7 +762,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
        needs about 21px of clearance — reserving the full inset under an already
        tall bar is what left a broad empty band at the bottom of the screen.
        Ten of those pixels are reclaimed, which still clears the indicator. */
-    --tabpad:max(calc(var(--sab) - 10px), 0px);
+    --tabpad:max(calc(var(--sab) - 18px), 0px);
     --tabbar-h:calc(var(--tabh) + var(--tabpad));
     --hit:44px;            /* smallest thing a thumb should have to hit */
 
@@ -782,7 +782,6 @@ svg.leaflet-image-layer.leaflet-interactive path {
     --body-glow-1:rgba(56,189,248,.16);
     --body-glow-2:rgba(27,175,122,.12);
     --map-void:#0A2338;            /* what surrounds the photo on the map */
-    --tab-notch:#0A1E30;           /* the bar colour the scan button punches through */
     --scrim:rgba(2,10,18,.6);
   }
 
@@ -848,7 +847,6 @@ svg.leaflet-image-layer.leaflet-interactive path {
     --body-glow-1:rgba(3,105,161,.07);
     --body-glow-2:rgba(4,120,87,.06);
     --map-void:#D8E5EE;
-    --tab-notch:#FFFFFF;
     --scrim:rgba(12,32,48,.42);
 
     --shadow:0 14px 34px -20px rgba(9,44,70,.42);
@@ -2205,27 +2203,29 @@ svg.leaflet-image-layer.leaflet-interactive path {
       display:flex;flex-direction:column;align-items:center;justify-content:center;
       color:var(--on-accent);-webkit-tap-highlight-color:transparent;
     }
-    /* No label under this one: it is a raised, coloured, unmistakable button
-       and the word only crowded it — the icon was landing on top of the text.
-       Without it the button is free to be centred in the cell and a little
-       larger, sitting about a third proud of the bar. */
+    /* Sits inside the bar, not above it. A raised button overhangs the bar's
+       own edge by design, which is exactly what "the icon is outside the
+       container" means — so it is a normal tab now: the chip and the glyph are
+       both centred on the cell and neither crosses the bar. */
+    .tab-scan{
+      position:relative;appearance:none;border:0;background:none;padding:0;
+      width:auto;height:var(--tabh);
+      display:flex;align-items:center;justify-content:center;
+      color:var(--on-accent);-webkit-tap-highlight-color:transparent;
+    }
     .tab-scan .ts-ring{
-      position:absolute;left:50%;top:-18px;transform:translateX(-50%);
-      width:56px;height:56px;border-radius:19px;
+      position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+      width:42px;height:42px;border-radius:14px;
       background:linear-gradient(160deg,var(--btn-1),var(--btn-2));
-      /* The outer ring punches the bar's own colour around the button so it
-         reads as floating through it, so it has to match the bar per theme.
-         It was hardcoded near-black and drew a dark halo on the white bar. */
-      box-shadow:0 10px 26px -8px rgba(56,189,248,.45),
-                 0 0 0 4px var(--tab-notch);
+      box-shadow:0 6px 16px -8px rgba(56,189,248,.55);
       transition:transform 160ms cubic-bezier(.32,.72,0,1);
     }
     .tab-scan > svg{
-      position:absolute;left:50%;top:-18px;transform:translateX(-50%);
-      width:56px;height:56px;padding:12px;box-sizing:border-box;
+      position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+      width:42px;height:42px;padding:10px;box-sizing:border-box;
       margin:0;color:var(--on-accent);z-index:1;pointer-events:none;
     }
-    .tab-scan:active .ts-ring{transform:translateX(-50%) scale(.93);}
+    .tab-scan:active .ts-ring{transform:translate(-50%,-50%) scale(.92);}
 
     /* ---- header ---- */
     .stage-head{padding:0 2px;gap:10px;}
@@ -2436,8 +2436,8 @@ svg.leaflet-image-layer.leaflet-interactive path {
     :root{ --tabh:46px; }
     .tab-l{display:none;}
     .tab svg{width:22px;height:22px;}
-    .tab-scan .ts-ring{top:-14px;width:44px;height:44px;border-radius:15px;}
-    .tab-scan > svg{top:-14px;width:44px;height:44px;padding:10px;}
+    .tab-scan .ts-ring{width:36px;height:36px;border-radius:12px;}
+    .tab-scan > svg{width:36px;height:36px;padding:8px;}
     .stage-head{display:none;}
   }
 

@@ -16428,6 +16428,12 @@ var qrcode = function() {
               toast(t('New day — the beach is back to its opening layout'));
               return pushSpots();
             }
+          }).then(function(){
+            /* Write the new date down. Without this the stored day stays
+               yesterday, every reload rolls over again, and a phone that
+               reloads mid-shift — which is most of what an installed PWA does
+               on iOS — frees every bed the staff just checked in. */
+            persist();
           });
         }
       }).then(pullDay).then(function(){

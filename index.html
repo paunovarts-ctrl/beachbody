@@ -15917,7 +15917,16 @@ var qrcode = function() {
     try { localStorage.removeItem(SESSION_KEY); } catch(e){}
     return SB.signedIn();
   }
-  function sessionEnd(){ return SB.signOut(); }
+  function sessionEnd(){
+    /* The beach cache holds the day's takings and the history behind them.
+       Leaving it behind means the next person to sign in on a shared phone
+       reads the last person's numbers. Beds come from the server now, so
+       nothing here is worth keeping across a sign-out. */
+    clearStore();
+    dayHistory = [];
+    day = newDay();
+    return SB.signOut();
+  }
 
   function enterApp(){
     var errEl = document.getElementById('loginError');
@@ -16404,6 +16413,15 @@ var qrcode = function() {
     setBaseMap(baseMap, true);
     L.control.zoom({position:'bottomleft'}).addTo(map);
     var wasRestored = restore();
+
+    /* Straight after the cache is read, and only here: applyPermissions runs
+       before this and would always find an empty history. A phone handed from
+       an owner to a worker must not carry the owner's takings across. */
+    if(ME && !can('see_money') && (dayHistory.length || dayCheckIns())){
+      dayHistory = [];
+      day = newDay();
+      persist();
+    }
 
     /* localStorage got us on screen immediately; the server decides what is
        actually true. A first run with an empty beach seeds it from what is
@@ -18525,7 +18543,7 @@ var qrcode = function() {
       sp.classList.remove('show');
       app.classList.remove('booting');
       setTimeout(function(){ if(map){ map.invalidateSize(); clampZoomRange(); } }, 60);
-      setView('overview');
+      setView(defaultView());
       return;
     }
 
@@ -18545,7 +18563,7 @@ var qrcode = function() {
         sp.classList.remove('show','lift');
         mk.style.transition = ''; mk.style.transform = '';
         if(map){ map.invalidateSize(); clampZoomRange(); }
-        setView('overview');
+        setView(defaultView());
       }, 800);
     }, 950);
   }
@@ -18582,6 +18600,10 @@ var qrcode = function() {
   }
 
   /* Hide what this person may not use. The worker gets the map and the beds. */
+  /* Where this account belongs when the app opens. A worker has no business
+     on a screen that is mostly takings. */
+  function defaultView(){ return can('see_money') ? 'overview' : 'map'; }
+
   function applyPermissions(){
     function show(sel, on){
       document.querySelectorAll(sel).forEach(function(el){
@@ -18600,6 +18622,30 @@ var qrcode = function() {
     document.getElementById('app').classList.toggle('no-layout', !can('edit_layout'));
 
     if(moneyBlind && (currentView === 'overview' || currentView === 'day')) setView('map');
+
+    /* The map's own toolbelt, tool by tool. Moving a lounger and drawing a
+       zone are different jobs with different permissions, and they sat in the
+       same strip — a worker was being handed the zone pen. The database would
+       have refused the write, but offering a control that cannot work is its
+       own kind of broken. */
+    show('#editToggleBtn', can('edit_layout') || can('edit_zones'));
+    show('[data-tool="add"], [data-tool="row"], [data-tool="set"], #rowCount, #snapBtn',
+         can('edit_layout'));
+    show('[data-tool="section"]', can('edit_zones'));
+    show('#newSectionBtn', can('edit_zones'));
+
+    /* Whatever they were holding may have just disappeared from under them. */
+    if((tool === 'section' && !can('edit_zones')) ||
+       ((tool === 'add' || tool === 'row' || tool === 'set') && !can('edit_layout'))){
+      tool = 'select';
+      document.querySelectorAll('.toolbelt .tool').forEach(function(b){
+        b.classList.toggle('on', b.getAttribute('data-tool') === 'select');
+      });
+    }
+    if(editMode && !can('edit_layout') && !can('edit_zones')){
+      editMode = false;
+      renderAll();
+    }
   }
 
   /* GoTrue speaks in its own terms. Two of its messages turn up constantly

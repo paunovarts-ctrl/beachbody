@@ -16662,11 +16662,19 @@ var qrcode = function() {
      patch. Coarse pointers get bigger pins, and .bed-pin adds an invisible
      hit ring on top of that. */
   var COARSE = window.matchMedia && window.matchMedia('(pointer:coarse)').matches;
-  var PIN_PX = COARSE ? {s:22, m:32, l:40} : {s:15, m:26, l:34};
+  /* Pin sizes by zoom tier. Deliberately smaller than they were: at anything
+     short of full zoom the old ones covered more sand than the beds do, and a
+     row of loungers read as one green smear.
+
+     Touch keeps its own, larger set — the icon size is also the tap target, and
+     a finger on a wet phone needs more than a mouse does. */
+  var PIN_PX = COARSE ? {s:17, m:25, l:33} : {s:11, m:19, l:26};
   function pinTier(){
     if(!map) return 'l';
     var f = Math.pow(2, map.getZoom() - baseZoom());
-    return f < 1.9 ? 's' : (f < 3.4 ? 'm' : 'l');
+    /* Stays on the small pin further in than it used to, so zooming a little
+       to read the beach does not immediately inflate every marker. */
+    return f < 2.3 ? 's' : (f < 4.0 ? 'm' : 'l');
   }
   var lastTier = null;
   function renderBeds(){

@@ -1809,6 +1809,48 @@ svg.leaflet-image-layer.leaflet-interactive path {
   @media (max-width:900px){ .scan-body{flex-direction:column;} .scan-side{width:auto;max-height:44vh;} }
 
   /* ---------- modal / toast ---------- */
+  .login-setup{
+    display:block;width:100%;margin-top:12px;padding:11px;border-radius:12px;
+    border:1px dashed var(--line-2);background:none;color:var(--ink-3);
+    font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;
+  }
+  .login-setup:hover{color:var(--ink-2);border-color:var(--line-3);}
+  /* People. Rows sit on the page like the zone list does, so the screen reads
+     as part of the app rather than a dialog that wandered in. */
+  .us-list{display:flex;flex-direction:column;gap:10px;}
+  .us-empty{color:var(--ink-3);font-size:13px;padding:10px 0;}
+  .us-row{border:1px solid var(--line);border-radius:14px;padding:13px 15px;background:var(--well);}
+  .us-head{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:10px;}
+  .us-head b{font-size:14px;}
+  .us-rank{font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--accent);background:var(--card);border:1px solid var(--line);
+    padding:2px 8px;border-radius:99px;}
+  .us-you{font-size:11px;color:var(--ink-3);}
+  .us-del{margin-left:auto;appearance:none;border:0;background:none;color:var(--occ);
+    font:inherit;font-size:12px;font-weight:600;cursor:pointer;padding:4px;}
+  .us-del:hover{text-decoration:underline;}
+  .us-perms{display:grid;grid-template-columns:1fr 1fr;gap:7px 14px;}
+  .us-perm{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--ink-2);
+    cursor:pointer;min-width:0;}
+  .us-perm span{flex:1;min-width:0;}
+  .us-perm.locked{opacity:.55;cursor:default;}
+  .us-perm input[type="checkbox"]{
+    width:17px;height:17px;min-width:0;flex:0 0 17px;margin:0;
+    accent-color:var(--accent);
+  }
+  .us-new-perms{margin:2px 0 14px;padding:12px 14px;border:1px solid var(--line);
+    border-radius:12px;background:var(--well);}
+  .us-fields{display:flex;gap:9px;flex-wrap:wrap;align-items:stretch;}
+  .us-fields .inp{flex:1;min-width:130px;}
+  .us-fields .btn{flex-shrink:0;}
+  .us-err{margin-top:10px;}
+  @media (max-width:640px){
+    .us-perms{grid-template-columns:1fr;}
+    .us-fields{flex-direction:column;}
+    .us-fields .inp{min-width:0;width:100%;}
+    .us-fields .btn{width:100%;justify-content:center;height:44px;}
+  }
+
   .modal-back{position:fixed;inset:0;background:rgba(4,12,20,.7);display:none;padding:calc(var(--sat) + 16px) calc(var(--sar) + 16px) calc(var(--sab) + 16px) calc(var(--sal) + 16px);align-items:center;justify-content:center;
     z-index:3000;padding:20px;backdrop-filter:blur(6px);}
   .modal-back.show{display:flex;}
@@ -2215,7 +2257,9 @@ svg.leaflet-image-layer.leaflet-interactive path {
     /* ---- bottom tab bar ---- */
     .tabbar{
       position:fixed;left:0;right:0;bottom:0;z-index:1600;
-      display:grid;grid-template-columns:repeat(5,1fr);align-items:end;
+      /* Was repeat(5,1fr). A worker without takings or zones has fewer
+         destinations, and a fixed grid left gaps where they used to be. */
+      display:flex;align-items:end;justify-content:space-around;
       height:var(--tabbar-h);
       padding:0 calc(var(--sal) + 4px) var(--tabpad) calc(var(--sar) + 4px);
       background:linear-gradient(180deg,rgba(9,29,48,.9),rgba(5,20,34,.98));
@@ -2223,6 +2267,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
       -webkit-backdrop-filter:blur(22px) saturate(1.3);
       border-top:1px solid var(--line-2);
     }
+    .tab,.tab-scan{flex:1 1 0;min-width:0;}
     .tab{
       appearance:none;border:0;background:none;
       /* .tab also carries .tn-btn so setView can toggle it, and the rail pins
@@ -2549,11 +2594,12 @@ svg.leaflet-image-layer.leaflet-interactive path {
     <div class="login-body">
       <div class="login-error" id="loginError">Incorrect username or password</div>
       <form id="loginForm">
-        <div class="field"><label for="user">Operator</label><input id="user" type="text" autocomplete="username" placeholder="Admin1"></div>
-        <div class="field"><label for="pass">Passcode</label><input id="pass" type="password" autocomplete="current-password" placeholder="••••••"></div>
+        <div class="field"><label for="user">Username</label><input id="user" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="Admin"></div>
+        <div class="field"><label for="pass">Password</label><input id="pass" type="password" autocomplete="current-password" placeholder="••••••••"></div>
         <button class="login-btn" type="submit">Enter control panel</button>
       </form>
-      <div class="login-hint">Operator <b>Admin1</b><br>Passcode <b>Admin</b></div>
+      <div class="login-hint" id="loginHint">Ask whoever runs your beach for an account.</div>
+      <button class="login-setup" id="setupBtn" type="button">Set up a new beach</button>
     </div>
   </div>
 </div>
@@ -2580,6 +2626,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
       <button class="tn-btn" data-view="zones"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8.5 11 4l8 4.5-5 11-9-4z"/><circle cx="11" cy="4" r="1.7" fill="currentColor"/><circle cx="19" cy="8.5" r="1.7" fill="currentColor"/><circle cx="5" cy="15.5" r="1.7" fill="currentColor"/></svg><span class="tip">Zones &amp; setup</span></button>
       <button class="tn-btn" data-view="day"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5M4 19h16"/><path d="M8 15l4-5 3 3 4-6"/></svg><span class="tip">Day &amp; takings</span></button>
       <button class="tn-btn" data-view="guide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H19v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H19v3H6.5A2.5 2.5 0 0 1 4 20.5z"/><path d="M8.5 7.5h6M8.5 11h4"/></svg><span class="tip">How it works</span></button>
+      <button class="tn-btn" data-view="people" id="usersBtn" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M16 19v-1.5a3.5 3.5 0 0 0-3.5-3.5h-5A3.5 3.5 0 0 0 4 17.5V19"/><circle cx="10" cy="8" r="3.2"/><path d="M19 19v-1.4a3.4 3.4 0 0 0-2.6-3.3"/><path d="M15.5 5.2a3.2 3.2 0 0 1 0 5.6"/></svg><span class="tip">People</span></button>
       <button class="tn-btn" id="railScan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V6a2 2 0 0 1 2-2h2M20 8V6a2 2 0 0 0-2-2h-2M4 16v2a2 2 0 0 0 2 2h2M20 16v2a2 2 0 0 1-2 2h-2"/><path d="M3.5 12h17"/></svg><span class="tip">Scan a bed</span></button>
     </nav>
     <div class="rail-sp"></div>
@@ -2825,6 +2872,9 @@ svg.leaflet-image-layer.leaflet-interactive path {
                 <div class="sec-h"><h2>Actions</h2></div>
                 <div class="layout-actions" style="grid-template-columns:1fr;margin-bottom:0;">
                   <button class="btn primary" id="saveLayoutBtn">Save layout</button>
+                  <!-- The one layout that gets put back on its own, every
+                       morning, however far the loungers wandered. -->
+                  <button class="btn" id="openingBtn">Set as opening layout</button>
                   <button class="btn" id="updateLayoutBtn">Update saved</button>
                   <button class="btn" id="exportBtn">Export file</button>
                   <button class="btn" id="importBtn">Import file</button>
@@ -2837,6 +2887,45 @@ svg.leaflet-image-layer.leaflet-interactive path {
     </section>
 
     <!-- ============ GUIDE ============ -->
+    <!-- ============ PEOPLE ============ -->
+    <section class="view" id="view-people">
+      <div class="scroller">
+        <div class="zn-grid">
+
+          <div class="card"><div class="card-b">
+            <div class="sec-h"><h2>Everyone on this beach</h2><div class="sp"></div>
+              <button class="btn" id="usersRefresh">Refresh</button></div>
+            <p class="zn-hint">Tick what each person is allowed to do. Changes save the moment you tick them, and the beach itself refuses anything this screen gets wrong.</p>
+            <div class="us-list" id="usersList"></div>
+          </div></div>
+
+          <div class="card"><div class="card-b">
+            <div class="sec-h"><h2>Add someone</h2></div>
+            <p class="zn-hint">Tick what this person will be allowed to do. The map and the beds are enough to work a shift; everything else is a decision.</p>
+            <div class="us-perms us-new-perms" id="nuPerms"></div>
+            <div class="us-fields">
+              <input class="inp" type="text" id="nuUser" placeholder="Username" autocapitalize="none" spellcheck="false">
+              <input class="inp" type="password" id="nuPass" placeholder="Password" autocomplete="new-password">
+              <button class="btn primary" id="nuGo">Add</button>
+            </div>
+            <div class="login-error us-err" id="nuError"></div>
+          </div></div>
+
+          <div class="card"><div class="card-b">
+            <div class="sec-h"><h2>Your own sign-in</h2></div>
+            <p class="zn-hint">Leave a box empty to keep what you have. Change the starting password before anyone else uses this.</p>
+            <div class="us-fields">
+              <input class="inp" type="text" id="myUser" placeholder="New username" autocapitalize="none" spellcheck="false">
+              <input class="inp" type="password" id="myPass" placeholder="New password" autocomplete="new-password">
+              <button class="btn primary" id="myGo">Save</button>
+            </div>
+            <div class="login-error us-err" id="myError"></div>
+          </div></div>
+
+        </div>
+      </div>
+    </section>
+
     <section class="view" id="view-guide">
       <div class="zn-tabs gd-tabs">
         <button data-gd="start" data-i18n="gt_start" class="active">Getting started</button>
@@ -3039,6 +3128,26 @@ svg.leaflet-image-layer.leaflet-interactive path {
   </div>
 </div>
 
+<!-- First run. Creating the owner and claiming a beach both go through the
+     server; nothing here decides who is allowed to do it. -->
+<div class="modal-back" id="setupBack">
+  <div class="modal">
+    <h3>Set up a new beach</h3>
+    <p>This creates the owner account and the beach it looks after. Do it once.</p>
+    <label class="mini-label" for="suBeach">Beach name</label>
+    <input type="text" id="suBeach" placeholder="Beach Materada, Poreč">
+    <label class="mini-label" for="suUser">Owner username</label>
+    <input type="text" id="suUser" value="Admin" autocapitalize="none" spellcheck="false">
+    <label class="mini-label" for="suPass">Password</label>
+    <input type="password" id="suPass" value="Admin1" autocomplete="new-password">
+    <div class="login-error" id="suError"></div>
+    <div class="modal-actions">
+      <button class="btn" id="suCancel">Cancel</button>
+      <button class="btn primary" id="suGo">Create the beach</button>
+    </div>
+  </div>
+</div>
+
 <input type="file" id="importFile" accept="application/json,.json" style="display:none">
 
 <!-- The rail is replaced wholesale by .tabbar on a phone, and the tab bar
@@ -3052,6 +3161,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
     <button class="ms-row" data-more="lang"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18z"/></svg><span class="ms-l">Language</span><span class="ms-v" id="msLang">EN</span></button>
     <button class="ms-row" data-more="sfx"><span id="msSfxIc"></span><span class="ms-l" id="msSfx">Sound on</span></button>
     <button class="ms-row" data-more="fs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5.5A1.5 1.5 0 0 1 5.5 4H9M20 9V5.5A1.5 1.5 0 0 0 18.5 4H15M4 15v3.5A1.5 1.5 0 0 0 5.5 20H9M20 15v3.5a1.5 1.5 0 0 1-1.5 1.5H15"/></svg><span class="ms-l">Fullscreen</span></button>
+    <button class="ms-row" data-more="users" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 19v-1.5a3.5 3.5 0 0 0-3.5-3.5h-5A3.5 3.5 0 0 0 4 17.5V19"/><circle cx="10" cy="8" r="3.2"/><path d="M19 19v-1.4a3.4 3.4 0 0 0-2.6-3.3"/><path d="M15.5 5.2a3.2 3.2 0 0 1 0 5.6"/></svg><span class="ms-l">People</span></button>
     <button class="ms-row danger" data-more="logout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"/><path d="M10 16l-4-4 4-4M6 12h9"/></svg><span class="ms-l">Sign out</span></button>
   </div>
 </div>
@@ -15495,50 +15605,385 @@ var qrcode = function() {
      is not a security boundary — everything runs in the browser, so anyone who
      can open the file can read the data. Say so plainly rather than implying
      otherwise. Real accounts would need the cloud endpoint in Day › Sync. */
-  var VALID_USER = "Admin1", VALID_PASS = "Admin";
-  var SESSION_KEY = 'bbm.session';
-  var SESSION_MAX = 16 * 60 * 60 * 1000;    /* one long beach day, then re-enter */
+  /* =========================================================
+     SUPABASE
+
+     A hand-rolled client, for the same reason Poreč Care has one: supabase-js
+     is a bundle away, and this app has no build step and has to keep working
+     from a cache on a phone with two bars of signal. Only the surfaces this
+     app actually touches are here — GoTrue for accounts, PostgREST for
+     tables, storage for the aerial photograph.
+
+     The publishable key below is meant to be public. On its own it grants
+     nothing: every table sits behind the row level security in
+     supabase/schema.sql. The secret key (sb_secret_… , formerly service_role)
+     bypasses every policy and must never appear in this file.
+
+     Leaving it blank is fine — the app then asks for the project once and
+     keeps it in that browser only, which is the quickest way to try it before
+     deciding where it lives.
+     ========================================================= */
+  var BBM_CONFIG = {
+    url: 'https://webmkhwgzlixhljwzxls.supabase.co',
+    key: 'sb_publishable_4wrmjQlcFcZiYdE8UU1npg_CooICM7e'
+  };
+
+  var SB = (function(){
+    var CFG_KEY  = 'bbm.sb.config';
+    var SESS_KEY = 'bbm.sb.session';
+    var session = null, refreshing = null, listeners = [];
+
+    try { session = JSON.parse(localStorage.getItem(SESS_KEY) || 'null'); } catch(e){ session = null; }
+
+    function config(){
+      var over = null;
+      try { over = JSON.parse(localStorage.getItem(CFG_KEY) || 'null'); } catch(e){}
+      var url = (over && over.url) || BBM_CONFIG.url || '';
+      var key = (over && over.key) || BBM_CONFIG.key || '';
+      return { url: String(url).replace(/\/+$/, ''), key: key };
+    }
+    function setConfig(url, key){
+      try { localStorage.setItem(CFG_KEY, JSON.stringify({ url: url, key: key })); } catch(e){}
+    }
+    function configured(){ var c = config(); return !!(c.url && c.key); }
+
+    function emit(){ for(var i=0;i<listeners.length;i++){ try{ listeners[i](session); }catch(e){} } }
+    function store(next){
+      session = next;
+      try {
+        if(next) localStorage.setItem(SESS_KEY, JSON.stringify(next));
+        else localStorage.removeItem(SESS_KEY);
+      } catch(e){ /* private mode: this tab only */ }
+      emit();
+    }
+
+    function err(msg, status){ var e = new Error(msg); e.status = status; return e; }
+
+    /* GoTrue hands back expires_in; an absolute stamp is what we need. */
+    function adopt(body){
+      if(!body || !body.access_token) throw err('Sign-in did not return a session', 500);
+      store({
+        access_token: body.access_token,
+        refresh_token: body.refresh_token,
+        expires_at: Date.now() + ((body.expires_in || 3600) * 1000),
+        user: body.user || null
+      });
+      return session;
+    }
+
+    function parse(res){
+      return res.text().then(function(t){
+        if(!t) return null;
+        try { return JSON.parse(t); } catch(e){ return t; }
+      });
+    }
+    function messageFrom(body, res){
+      if(!body) return res.statusText || ('HTTP ' + res.status);
+      if(typeof body === 'string') return body;
+      return body.error_description || body.msg || body.message || body.error ||
+             body.hint || res.statusText || ('HTTP ' + res.status);
+    }
+
+    /* One refresh at a time, shared by every caller that hits an expired
+       token — otherwise a burst of requests each start their own. */
+    function refresh(){
+      if(!session || !session.refresh_token) return Promise.reject(err('Signed out', 401));
+      if(!refreshing){
+        var c = config();
+        refreshing = fetch(c.url + '/auth/v1/token?grant_type=refresh_token', {
+          method: 'POST',
+          headers: { apikey: c.key, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ refresh_token: session.refresh_token })
+        }).then(function(res){
+          return parse(res).then(function(body){
+            if(!res.ok){ store(null); throw err(messageFrom(body, res), res.status); }
+            return adopt(body);
+          });
+        }).then(function(v){ refreshing = null; return v; },
+                function(e){ refreshing = null; throw e; });
+      }
+      return refreshing;
+    }
+
+    function call(path, options, retry){
+      var c = config();
+      if(!c.url || !c.key) return Promise.reject(err('Not connected to a Supabase project yet', 0));
+      options = options || {};
+      if(retry === undefined) retry = true;
+
+      var headers = { apikey: c.key };
+      for(var k in (options.headers || {})) headers[k] = options.headers[k];
+
+      var pre = Promise.resolve();
+      if(session && !options.anon &&
+         session.expires_at && session.expires_at - Date.now() < 60000 && session.refresh_token){
+        pre = refresh().then(null, function(){ /* the call below will 401 and retry */ });
+      }
+
+      return pre.then(function(){
+        if(session && !options.anon) headers.Authorization = 'Bearer ' + session.access_token;
+        var init = { method: options.method || 'GET', headers: headers };
+        if(options.body !== undefined) init.body = options.body;
+        return fetch(c.url + path, init).then(null, function(){ throw err('offline', 0); });
+      }).then(function(res){
+        if(res.status === 401 && retry && session && session.refresh_token && !options.anon){
+          return refresh().then(function(){ return call(path, options, false); });
+        }
+        return parse(res).then(function(body){
+          if(!res.ok) throw err(messageFrom(body, res), res.status);
+          return body;
+        });
+      });
+    }
+
+    function query(params){
+      var s = [];
+      for(var k in (params || {})){
+        var v = params[k];
+        if(v === undefined || v === null || v === '') continue;
+        s.push(encodeURIComponent(k) + '=' + encodeURIComponent(v));
+      }
+      return s.length ? '?' + s.join('&') : '';
+    }
+
+    var JSON_H = { 'Content-Type': 'application/json' };
+
+    return {
+      config: config, setConfig: setConfig, configured: configured,
+
+      session:  function(){ return session; },
+      user:     function(){ return session && session.user; },
+      userId:   function(){ return session && session.user && session.user.id; },
+      signedIn: function(){ return !!(session && session.access_token); },
+      onChange: function(fn){ listeners.push(fn); },
+
+      signIn: function(email, password){
+        return call('/auth/v1/token?grant_type=password', {
+          method: 'POST', anon: true, headers: JSON_H,
+          body: JSON.stringify({ email: email, password: password })
+        }).then(adopt);
+      },
+      signUp: function(email, password, displayName){
+        return call('/auth/v1/signup', {
+          method: 'POST', anon: true, headers: JSON_H,
+          body: JSON.stringify({ email: email, password: password, data: { display_name: displayName || '' } })
+        }).then(function(body){
+          /* With e-mail confirmation on, Supabase returns a user and no token.
+             That is not a failure — the caller says "check your inbox". */
+          if(body && body.access_token){ adopt(body); return { confirmationNeeded: false }; }
+          return { confirmationNeeded: true };
+        });
+      },
+      signOut: function(){
+        return call('/auth/v1/logout', { method: 'POST' })
+          .then(null, function(){ /* a local sign-out still stands */ })
+          .then(function(){ store(null); });
+      },
+      resetPassword: function(email, redirectTo){
+        return call('/auth/v1/recover', {
+          method: 'POST', anon: true, headers: JSON_H,
+          body: JSON.stringify({ email: email, gotrue_meta_security: {}, redirect_to: redirectTo })
+        });
+      },
+
+      select: function(table, params){
+        return call('/rest/v1/' + table + query(params)).then(function(b){ return b || []; });
+      },
+      insert: function(table, rows, returning){
+        return call('/rest/v1/' + table, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json',
+                     Prefer: (returning === false ? 'return=minimal' : 'return=representation') },
+          body: JSON.stringify(rows)
+        }).then(function(b){ return Array.isArray(b) ? b[0] : b; });
+      },
+      update: function(table, patch, filters){
+        return call('/rest/v1/' + table + query(filters), {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json', Prefer: 'return=representation' },
+          body: JSON.stringify(patch)
+        }).then(function(b){ return Array.isArray(b) ? b[0] : b; });
+      },
+      remove: function(table, filters){
+        return call('/rest/v1/' + table + query(filters), { method: 'DELETE' });
+      },
+      /* Insert-or-update against a unique constraint, which is how a bed that
+         may or may not already exist on the server gets written in one go. */
+      upsert: function(table, rows, onConflict){
+        return call('/rest/v1/' + table + '?on_conflict=' + encodeURIComponent(onConflict), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json',
+                     Prefer: 'resolution=merge-duplicates,return=minimal' },
+          body: JSON.stringify(rows)
+        });
+      },
+      rpc: function(name, args){
+        return call('/rest/v1/rpc/' + name, {
+          method: 'POST', headers: JSON_H, body: JSON.stringify(args || {})
+        });
+      },
+
+      publicUrl: function(bucket, path){
+        var c = config();
+        if(!c.url || !path) return '';
+        return c.url + '/storage/v1/object/public/' + bucket + '/' + path;
+      },
+
+
+      /* ---- usernames -------------------------------------------------------
+         Staff sign in with a username. GoTrue only does password auth against
+         an e-mail, so one is synthesised here and never shown to anyone. No
+         mail is ever sent to it; the domain does not resolve on purpose. */
+      emailFor: function(username){
+        return String(username || '').trim().toLowerCase() + '@bbm.local';
+      },
+      nameFrom: function(email){
+        return String(email || '').replace(/@bbm\.local$/i, '');
+      },
+
+      signInAs: function(username, password){
+        return this.signIn(this.emailFor(username), password);
+      },
+
+      /* Create an account without becoming it.
+         Sign-up returns a fresh session, which would silently sign the owner
+         out halfway through adding a worker. The current session is put back
+         before this resolves, so the owner stays the owner. */
+      createUser: function(username, password){
+        var keep = session;
+        return call('/auth/v1/signup', {
+          method: 'POST', anon: true, headers: JSON_H,
+          body: JSON.stringify({
+            email: this.emailFor(username), password: password,
+            data: { display_name: username }
+          })
+        }).then(function(body){
+          store(keep);
+          var user = (body && body.user) || body;
+          if(!user || !user.id) throw err('The account was not created', 500);
+          return user.id;
+        }, function(e){
+          store(keep);
+          throw e;
+        });
+      },
+
+      /* Changing your own username or password. GoTrue only lets a token
+         change its own account, which is why an owner resetting someone
+         else's password is not offered here — see the note in the app. */
+      setOwnPassword: function(password){
+        return call('/auth/v1/user', {
+          method: 'PUT', headers: JSON_H,
+          body: JSON.stringify({ password: password })
+        });
+      },
+      setOwnUsername: function(username){
+        return call('/auth/v1/user', {
+          method: 'PUT', headers: JSON_H,
+          body: JSON.stringify({ email: this.emailFor(username),
+                                 data: { display_name: username } })
+        });
+      },
+
+      /* A cheap round trip, so the setup screen can prove a URL and key work
+         before it keeps them.
+
+         Deliberately not /rest/v1/ — that root now answers "Secret API key
+         required" to a publishable key, which looks exactly like a rejection
+         and is not one. Asking for an actual table tells the two apart: 404
+         means the key was accepted and the schema has not been run yet. */
+      ping: function(url, key){
+        var base = String(url).replace(/\/+$/, '');
+        return fetch(base + '/auth/v1/health', { headers: { apikey: key } })
+          .then(null, function(){ throw err('Could not reach that URL', 0); })
+          .then(function(res){
+            if(!res.ok) throw err('No Supabase project answered at that URL', res.status);
+            return fetch(base + '/rest/v1/beaches?select=id&limit=1', { headers: { apikey: key } });
+          })
+          .then(function(res){
+            if(res.status === 401 || res.status === 403) throw err('That key was refused', res.status);
+            return { ok: true, schemaReady: res.status !== 404 };
+          });
+      }
+    };
+  })();
+
+  /* Accounts live in Supabase now. Nothing here decides whether a password is
+     right — that happens on a server, and the row level security means a
+     token is worth only what its owner's memberships allow. */
+  var SESSION_KEY = 'bbm.session';   /* legacy; cleared on sight */
 
   function sessionAlive(){
-    try{
-      var raw = localStorage.getItem(SESSION_KEY);
-      if(!raw) return false;
-      var s = JSON.parse(raw);
-      if(!s || s.user !== VALID_USER) return false;
-      if(Date.now() - s.at > SESSION_MAX){ localStorage.removeItem(SESSION_KEY); return false; }
-      return true;
-    }catch(e){ return false; }
+    try { localStorage.removeItem(SESSION_KEY); } catch(e){}
+    return SB.signedIn();
   }
-  function sessionStart(){
-    try{ localStorage.setItem(SESSION_KEY, JSON.stringify({ user: VALID_USER, at: Date.now() })); }catch(e){}
-  }
-  function sessionEnd(){ try{ localStorage.removeItem(SESSION_KEY); }catch(e){} }
+  function sessionEnd(){ return SB.signOut(); }
 
   function enterApp(){
-    document.getElementById('loginError').style.display = 'none';
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('app').classList.add('ready');
-    startUp();
+    var errEl = document.getElementById('loginError');
+    /* What this account may do decides what the interface even offers, so it
+       is loaded before anything is drawn rather than after. */
+    return loadMembership().then(function(me){
+      if(!me){
+        errEl.textContent = t('That account is not attached to a beach yet');
+        errEl.style.display = 'block';
+        return SB.signOut();
+      }
+      errEl.style.display = 'none';
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('app').classList.add('ready');
+      applyPermissions();
+      startUp();
+    }, function(ex){
+      errEl.textContent = (ex && ex.status === 0)
+        ? t('No connection — check the signal and try again')
+        : ((ex && ex.message) || t('Could not load your account'));
+      errEl.style.display = 'block';
+    });
   }
 
   document.getElementById('loginForm').addEventListener('submit', function(e){
     e.preventDefault();
-    var u = document.getElementById('user').value.trim();
-    var p = document.getElementById('pass').value;
-    if(u === VALID_USER && p === VALID_PASS){
-      sessionStart();
+    var email = document.getElementById('user').value.trim();
+    var pass  = document.getElementById('pass').value;
+    var errEl = document.getElementById('loginError');
+    var btn   = e.target.querySelector('.login-btn');
+
+    if(!SB.configured()){
+      errEl.textContent = t('This app is not connected to a Supabase project yet');
+      errEl.style.display = 'block';
+      return;
+    }
+    if(!email || !pass){
+      errEl.textContent = t('Enter your username and password');
+      errEl.style.display = 'block';
+      return;
+    }
+
+    errEl.style.display = 'none';
+    btn.disabled = true;
+    SB.signInAs(email, pass).then(function(){
+      btn.disabled = false;
+      document.getElementById('pass').value = '';
       enterApp();
-    } else {
-      document.getElementById('loginError').style.display = 'block';
+    }, function(ex){
+      btn.disabled = false;
+      /* Say which of the two it is. "Wrong password" and "no signal" need
+         different things from the person holding the phone. */
+      errEl.textContent = (ex && ex.status === 0)
+        ? t('No connection — check the signal and try again')
+        : t('That username and password did not match');
+      errEl.style.display = 'block';
       document.getElementById('pass').value = '';
       document.getElementById('pass').focus();
-    }
+    });
   });
   document.getElementById('logoutBtn').addEventListener('click', function(){
-    sessionEnd();
-    document.getElementById('app').classList.remove('ready');
-    document.getElementById('loginScreen').style.display = 'flex';
-    document.getElementById('pass').value = '';
+    sessionEnd().then(function(){
+      document.getElementById('app').classList.remove('ready');
+      document.getElementById('loginScreen').style.display = 'flex';
+      document.getElementById('pass').value = '';
+    });
   });
 
   /* Installed to a home screen, iOS discards the tab whenever it feels like
@@ -15816,6 +16261,7 @@ var qrcode = function() {
              into the history first, then start clean. */
           rolledOver = archiveDay(day);
           day = newDay();
+          dayRolledOver = true;   /* boot re-lays the beach from the preset */
         }
       }
       return true;
@@ -15880,7 +16326,11 @@ var qrcode = function() {
       else if(m.type==='log'){ addLog(m.entry, false); }
     };
   }
-  function syncBeds(){ broadcast({type:'beds', beds:beds, bedSeq:bedSeq}); persist(); }
+  function syncBeds(){
+    broadcast({type:'beds', beds:beds, bedSeq:bedSeq});
+    persist();                 /* the local copy is still the offline cache */
+    pushSpots();               /* and the server is the one everybody shares */
+  }
   function updateDevices(){
     var cut = Date.now()-8000, n = 1;
     Object.keys(peers).forEach(function(k){ if(peers[k]>=cut) n++; else delete peers[k]; });
@@ -15954,6 +16404,37 @@ var qrcode = function() {
     setBaseMap(baseMap, true);
     L.control.zoom({position:'bottomleft'}).addTo(map);
     var wasRestored = restore();
+
+    /* localStorage got us on screen immediately; the server decides what is
+       actually true. A first run with an empty beach seeds it from what is
+       already here rather than starting anyone off with bare sand. */
+    if(BEACH_ID){
+      /* Held before the pull, because pullSpots() replaces `beds` with whatever
+         the server has. On a beach that has never been uploaded that is an
+         empty list, and without this the local layout would be wiped by it
+         instead of becoming it. */
+      var seedBeds = beds.slice();
+      pullSpots().then(function(ok){
+        if(!ok) return;
+        if(!beds.length && seedBeds.length){
+          beds = seedBeds;
+          bedSeq = seedBeds.length + 1;
+          return pushSpots().then(function(){ toast(t('Beach uploaded — it is shared from now on')); });
+        }
+        if(dayRolledOver){
+          dayRolledOver = false;
+          return getOpeningPreset().then(function(preset){
+            if(applyOpeningPreset(preset)){
+              toast(t('New day — the beach is back to its opening layout'));
+              return pushSpots();
+            }
+          });
+        }
+      }).then(pullDay).then(function(){
+        renderAll();
+        startSpotPolling();
+      });
+    }
 
     map.on('click', function(){ if(!editMode) closeBedCard(); });
     map.on('click', onMapClick);
@@ -16183,9 +16664,10 @@ var qrcode = function() {
 
       if(editMode){
         var moved = false;
-        mk.on('dragstart', function(){ moved = false; pushHistory(); });
+        mk.on('dragstart', function(){ moved = false; draggingBed = true; pushHistory(); });
         mk.on('drag', function(){ moved = true; });
         mk.on('dragend', function(ev){
+          draggingBed = false;
           var n = applySnap(fromLatLng(ev.target.getLatLng()));
           bed.nx = n[0]; bed.ny = n[1];
           ev.target.setLatLng(toLatLng(n[0],n[1]));
@@ -16787,10 +17269,16 @@ var qrcode = function() {
   function setStatus(id, status){
     var bed = findBed(id); if(!bed) return;
     if(bed.status !== status) sfx(SFX_FOR_STATUS[status] || 'tap');
-    if(status === 'occupied' && bed.status !== 'occupied') day.ci[bed.kind||'bed']++;
+    var checkedIn = (status === 'occupied' && bed.status !== 'occupied');
+    if(checkedIn) day.ci[bed.kind||'bed']++;
     bed.status = status;
     var pct = beds.length ? Math.round(occupiedNow()/beds.length*100) : 0;
     if(pct > day.peakOcc) day.peakOcc = pct;
+    /* Counted locally for an instant answer, and on the server so the total
+       is the beach's rather than this phone's. */
+    bumpDay(checkedIn && (bed.kind||'bed') === 'bed'      ? 1 : 0,
+            checkedIn && (bed.kind||'bed') === 'umbrella' ? 1 : 0,
+            pct);
     if(status === 'free'){ bed.guest=''; bed.time=''; }
     else { bed.time = nowTime(); if(!bed.guest && status==='occupied') bed.guest = 'Walk-in guest'; }
     syncBeds(); renderAll();
@@ -17593,6 +18081,7 @@ var qrcode = function() {
     map:     {t:'Beach map', s:function(){ return 'Tap a bed to check a guest in or out'; }},
     zones:   {t:'Zones & setup', s:function(){ return sections.length+' zones · '+beds.length+' spots'; }},
     guide:   {t:'How it works', s:function(){ return 'Every screen and every control, explained'; }},
+    people:  {t:'People', s:function(){ return 'Who works here and what they may do'; }},
     day:     {t:'Day & takings', s:function(){ return 'Today, history and online sync'; }}
   };
   var currentView = 'overview';
@@ -17618,6 +18107,7 @@ var qrcode = function() {
     if(v==='overview') renderOverview();
     if(v==='zones'){ renderSectionList(); renderSetupList(); renderLayouts(); }
     if(v==='guide'){ var f=document.getElementById('gdFind'); if(f){ f.value=''; gdFilter(''); } }
+    if(v==='people' && can('manage_users')){ renderNewPerms(); renderUsers(); }
   }
 
   /* ---- little chart helpers ---- */
@@ -18054,6 +18544,579 @@ var qrcode = function() {
     }, 950);
   }
 
+  /* =========================================================
+     WHO IS SIGNED IN, AND WHAT THEY MAY DO
+
+     Every capability is enforced twice: once here so the interface does not
+     offer what will fail, and once in the database by the policies in
+     supabase/permissions.sql. The second one is the one that counts — hiding a
+     button stops an honest mistake, not a determined person.
+     ========================================================= */
+  var ME = null;          /* the caller's membership row, once loaded */
+  var BEACH_ID = null;
+
+  function can(p){
+    if(!ME) return false;
+    if(ME.role === 'owner') return true;
+    return !!ME['can_' + p];
+  }
+
+  /* Pull the membership for whoever just signed in. One beach per account for
+     now; the row carries both the beach and the capabilities. */
+  function loadMembership(){
+    return SB.select('memberships', {
+      select: 'beach_id,role,username,staff_name,can_edit_layout,can_set_status,' +
+              'can_edit_zones,can_see_money,can_edit_prices,can_manage_users',
+      user_id: 'eq.' + SB.userId(), limit: 1
+    }).then(function(rows){
+      ME = rows[0] || null;
+      BEACH_ID = ME && ME.beach_id;
+      return ME;
+    });
+  }
+
+  /* Hide what this person may not use. The worker gets the map and the beds. */
+  function applyPermissions(){
+    function show(sel, on){
+      document.querySelectorAll(sel).forEach(function(el){
+        el.style.display = on ? '' : 'none';
+      });
+    }
+    show('[data-view="zones"]', can('edit_zones'));
+    show('[data-view="day"]',   can('see_money'));
+    show('#usersBtn, [data-more="users"]', can('manage_users'));
+
+    /* The overview is one long wall of takings and occupancy, so a worker who
+       cannot see money starts on the map instead and never lands on it. */
+    var moneyBlind = !can('see_money');
+    show('[data-view="overview"]', !moneyBlind);
+    document.getElementById('app').classList.toggle('no-money', moneyBlind);
+    document.getElementById('app').classList.toggle('no-layout', !can('edit_layout'));
+
+    if(moneyBlind && (currentView === 'overview' || currentView === 'day')) setView('map');
+  }
+
+  /* GoTrue speaks in its own terms. Two of its messages turn up constantly
+     during setup and mean something a person can act on, so they get said
+     properly rather than passed through raw. */
+  function authMessage(ex){
+    var m = (ex && ex.message) || '';
+    if(/rate limit|over_email_send_rate/i.test(m)){
+      return t('Supabase is still trying to e-mail a confirmation. Turn off "Confirm email" under Authentication › Sign In / Providers › Email, then try again.');
+    }
+    if(/already regist|already been regist|duplicate|unique/i.test(m)){
+      return t('That username is taken');
+    }
+    if(/signup|not allowed|disabled/i.test(m)){
+      return t('New accounts are switched off for this project');
+    }
+    if(ex && ex.status === 0) return t('No connection — check the signal and try again');
+    return m || t('Something went wrong');
+  }
+
+  /* =========================================================
+     BEDS ON THE SERVER
+
+     Every bed is a row in `spots`, keyed by its code. The in-memory `beds`
+     array stays exactly as it was — this layer only carries changes both ways,
+     so nothing else in the app had to be rewritten.
+
+     Polling, not websockets. A phone on a beach loses signal constantly, and a
+     poll that misses simply catches up on the next tick; a dropped socket has
+     to be noticed, torn down and rebuilt before it does. Realtime is enabled on
+     the table if this is ever worth revisiting, but for a shift on the sand,
+     predictable beats instant.
+     ========================================================= */
+  var dayRolledOver = false;
+
+  var draggingBed = false;
+
+  var SPOTS = {
+    ready:   false,      /* a first pull has landed */
+    shadow:  {},         /* code -> row as the server last had it */
+    busy:    false,
+    again:   false,      /* a change arrived mid-push; go round once more */
+    timer:   null,
+    lastErr: null
+  };
+
+  function spotRow(b){
+    return {
+      code:   String(b.code),
+      kind:   b.kind || 'bed',
+      nx:     Math.min(1, Math.max(0, +(+b.nx).toFixed(6))),
+      ny:     Math.min(1, Math.max(0, +(+b.ny).toFixed(6))),
+      status: b.status || 'free',
+      guest:  b.guest || ''
+    };
+  }
+  function sameRow(a, b){
+    return a && b && a.kind === b.kind && a.nx === b.nx && a.ny === b.ny &&
+           a.status === b.status && a.guest === b.guest;
+  }
+
+  /* ---- down ---- */
+  function pullSpots(){
+    if(!BEACH_ID) return Promise.resolve(false);
+    return SB.select('spots', {
+      select: 'code,kind,nx,ny,status,guest', beach_id: 'eq.' + BEACH_ID, order: 'code.asc'
+    }).then(function(rows){
+      SPOTS.lastErr = null;
+      var next = [], shadow = {}, seq = 1;
+      rows.forEach(function(r){
+        var row = spotRow(r);
+        shadow[row.code] = row;
+        /* Keep the local id where the code is already on screen, so an open
+           bed card and the current selection survive a refresh. */
+        var was = null;
+        for(var i=0;i<beds.length;i++){ if(beds[i].code === row.code){ was = beds[i]; break; } }
+        next.push({
+          id: (was && was.id) || ('b' + (seq++)),
+          code: row.code, kind: row.kind, nx: row.nx, ny: row.ny,
+          status: row.status, guest: row.guest,
+          time: (was && was.status === row.status) ? was.time
+                : (row.status === 'free' ? '' : nowTime())
+        });
+      });
+      SPOTS.shadow = shadow;
+      beds = next;
+      bedSeq = next.length + 1;
+      SPOTS.ready = true;
+      return true;
+    }, function(ex){
+      SPOTS.lastErr = ex;
+      return false;
+    });
+  }
+
+  /* ---- up ---- */
+  /* Only what actually changed goes over the wire. That matters for more than
+     bandwidth: sending an untouched bed would make its nx/ny "change" as far as
+     the guard trigger is concerned, and a worker without edit_layout would be
+     refused for standing still. */
+  function pushSpots(){
+    if(!BEACH_ID || !SPOTS.ready) return Promise.resolve(false);
+    if(SPOTS.busy){ SPOTS.again = true; return Promise.resolve(false); }
+
+    var now = {}, changed = [], gone = [];
+    beds.forEach(function(b){ var r = spotRow(b); now[r.code] = r;
+      if(!sameRow(SPOTS.shadow[r.code], r)) changed.push(r); });
+    Object.keys(SPOTS.shadow).forEach(function(c){ if(!now[c]) gone.push(c); });
+
+    if(!changed.length && !gone.length) return Promise.resolve(true);
+
+    SPOTS.busy = true;
+    var work = Promise.resolve();
+
+    if(changed.length){
+      var rows = changed.map(function(r){
+        return { beach_id: BEACH_ID, code: r.code, kind: r.kind,
+                 nx: r.nx, ny: r.ny, status: r.status, guest: r.guest };
+      });
+      work = work.then(function(){
+        return SB.upsert('spots', rows, 'beach_id,code');
+      });
+    }
+    if(gone.length){
+      work = work.then(function(){
+        return SB.remove('spots', {
+          beach_id: 'eq.' + BEACH_ID,
+          code: 'in.(' + gone.map(function(c){ return '"' + c.replace(/"/g,'') + '"'; }).join(',') + ')'
+        });
+      });
+    }
+
+    return work.then(function(){
+      SPOTS.shadow = now;
+      SPOTS.lastErr = null;
+      SPOTS.busy = false;
+      if(SPOTS.again){ SPOTS.again = false; return pushSpots(); }
+      return true;
+    }, function(ex){
+      SPOTS.busy = false;
+      SPOTS.again = false;
+      SPOTS.lastErr = ex;
+      /* The shadow is deliberately not advanced: the next push retries the
+         same diff rather than forgetting it. */
+      setSync('err', ex && ex.status === 0
+        ? t('Saved on this phone — no signal')
+        : ((ex && ex.message) || t('Could not save to the server')));
+      return false;
+    });
+  }
+
+  /* Pull on a timer. Skipped while the tab is hidden, because a phone in a
+     pocket has nothing to show and every request costs battery. */
+  function startSpotPolling(){
+    clearInterval(SPOTS.timer);
+    SPOTS.timer = setInterval(function(){
+      if(document.hidden || SPOTS.busy || !BEACH_ID) return;
+      /* Not while the beach is being arranged: replacing the array under a
+         drag snaps the bed back to where the server still thinks it is. */
+      if(editMode || draggingBed) return;
+      pullSpots().then(function(ok){ return pullDay().then(function(d){ if(ok||d) renderAll(); }); });
+    }, 7000);
+  }
+  document.addEventListener('visibilitychange', function(){
+    if(!document.hidden && BEACH_ID && SPOTS.ready && !editMode && !draggingBed){
+      pullSpots().then(function(ok){ if(ok) renderAll(); });
+    }
+  });
+
+  /* ---- the day's counters -----------------------------------------------
+     bump_day() adds deltas rather than writing totals, so two phones checking
+     guests in at the same moment both count. That also makes a failed call
+     safe to retry: what did not get through stays in the queue and goes with
+     the next one, which is what a shift on patchy signal needs. */
+  var DAY_Q = { bed:0, umb:0, occ:0, sending:false };
+
+  function bumpDay(bedDelta, umbDelta, occ){
+    if(!BEACH_ID) return;
+    DAY_Q.bed += bedDelta || 0;
+    DAY_Q.umb += umbDelta || 0;
+    DAY_Q.occ  = Math.max(DAY_Q.occ, occ || 0);
+    flushDay();
+  }
+
+  function flushDay(){
+    if(!BEACH_ID || DAY_Q.sending) return;
+    if(!DAY_Q.bed && !DAY_Q.umb && !DAY_Q.occ) return;
+    var b = DAY_Q.bed, u = DAY_Q.umb, o = DAY_Q.occ;
+    DAY_Q.bed = 0; DAY_Q.umb = 0; DAY_Q.occ = 0;
+    DAY_Q.sending = true;
+    SB.rpc('bump_day', { b: BEACH_ID, d: todayKey(), bed_delta: b, umb_delta: u, occ: o })
+      .then(function(){ DAY_Q.sending = false; flushDay(); },
+            function(){
+              /* Back on the queue rather than lost. A peak is a high-water
+                 mark, so it merges instead of adding. */
+              DAY_Q.bed += b; DAY_Q.umb += u; DAY_Q.occ = Math.max(DAY_Q.occ, o);
+              DAY_Q.sending = false;
+            });
+  }
+
+  /* Only for those allowed to see money — a worker's app never asks. */
+  function pullDay(){
+    if(!BEACH_ID || !can('see_money')) return Promise.resolve(false);
+    return SB.select('days', {
+      select: 'ci_bed,ci_umbrella,peak_occ', beach_id: 'eq.' + BEACH_ID,
+      day: 'eq.' + todayKey(), limit: 1
+    }).then(function(rows){
+      if(!rows.length) return false;
+      day.ci.bed      = rows[0].ci_bed;
+      day.ci.umbrella = rows[0].ci_umbrella;
+      day.peakOcc     = rows[0].peak_occ;
+      return true;
+    }, function(){ return false; });
+  }
+
+  /* =========================================================
+     THE OPENING PRESET
+
+     What the beach is supposed to look like at the start of a day. Saved once
+     by whoever lays it out, then re-applied every morning — so a shift can
+     drag loungers wherever the guests want them without anyone having to
+     remember where they came from.
+     ========================================================= */
+  function presetOf(){
+    return beds.map(function(b){
+      var r = spotRow(b);
+      return { code: r.code, kind: r.kind, nx: r.nx, ny: r.ny };
+    });
+  }
+
+  function saveOpeningPreset(){
+    if(!BEACH_ID) return Promise.resolve(false);
+    if(!can('edit_layout')){ toast(t('You are not allowed to change the layout')); return Promise.resolve(false); }
+    var rows = presetOf();
+    if(!rows.length){ toast(t('There is nothing on the beach to save')); return Promise.resolve(false); }
+
+    return SB.select('layouts', {
+      select: 'id', beach_id: 'eq.' + BEACH_ID, is_opening: 'is.true', limit: 1
+    }).then(function(found){
+      if(found.length){
+        return SB.update('layouts', { name: t('Opening layout'), data: rows },
+                         { id: 'eq.' + found[0].id });
+      }
+      return SB.insert('layouts', {
+        beach_id: BEACH_ID, name: t('Opening layout'), data: rows, is_opening: true
+      });
+    }).then(function(){
+      toast(t('Saved as the opening layout'));
+      return true;
+    }, function(ex){
+      toast((ex && ex.message) || t('Could not save the opening layout'));
+      return false;
+    });
+  }
+
+  function getOpeningPreset(){
+    if(!BEACH_ID) return Promise.resolve(null);
+    return SB.select('layouts', {
+      select: 'data', beach_id: 'eq.' + BEACH_ID, is_opening: 'is.true', limit: 1
+    }).then(function(rows){
+      return (rows.length && Array.isArray(rows[0].data) && rows[0].data.length) ? rows[0].data : null;
+    }, function(){ return null; });
+  }
+
+  /* Put the beach back the way it opens: every bed at its preset spot, every
+     one of them free. Anything added during the day that the preset has never
+     heard of is left alone rather than deleted — losing a real bed because
+     nobody re-saved the preset would be worse than an untidy morning. */
+  function applyOpeningPreset(preset){
+    if(!preset || !preset.length) return false;
+    var byCode = {};
+    beds.forEach(function(b){ byCode[b.code] = b; });
+
+    var seq = 1, next = [];
+    preset.forEach(function(p){
+      var was = byCode[p.code];
+      delete byCode[p.code];
+      next.push({
+        id: (was && was.id) || ('b' + (seq++)),
+        code: p.code, kind: p.kind || 'bed',
+        nx: p.nx, ny: p.ny,
+        status: 'free', guest: '', time: ''
+      });
+    });
+    Object.keys(byCode).forEach(function(c){
+      var extra = byCode[c];
+      extra.status = 'free'; extra.guest = ''; extra.time = '';
+      next.push(extra);
+    });
+
+    beds = next;
+    bedSeq = next.length + 1;
+    return true;
+  }
+
+  /* ---------------------------------------------------------------- setup -- */
+  /* First run: create the owner, then claim a beach for them. Both go through
+     GoTrue and a security-definer function, so no service key is involved. */
+  function runSetup(){
+    var beach = document.getElementById('suBeach').value.trim();
+    var uname = document.getElementById('suUser').value.trim();
+    var pass  = document.getElementById('suPass').value;
+    var errEl = document.getElementById('suError');
+    var btn   = document.getElementById('suGo');
+
+    if(!beach || !uname || !pass){
+      errEl.textContent = t('Fill in all three'); errEl.style.display = 'block'; return;
+    }
+    if(pass.length < 6){
+      errEl.textContent = t('Use at least six characters'); errEl.style.display = 'block'; return;
+    }
+    errEl.style.display = 'none';
+    btn.disabled = true;
+
+    SB.createUser(uname, pass)
+      .then(null, function(ex){
+        /* An account left over from an interrupted attempt is not a failure.
+           Setup only needs to be able to sign into it — if the password is
+           wrong, the sign-in below says so plainly. */
+        if(/already regist|already been regist/i.test((ex && ex.message) || '')) return null;
+        throw ex;
+      })
+      .then(function(){ return SB.signInAs(uname, pass); })
+      .then(function(){ return loadMembership(); })
+      .then(function(me){
+        /* Claim only if this account has no beach. Otherwise setup run twice
+           would quietly leave a trail of empty beaches behind it. */
+        if(me) return me;
+        return SB.rpc('claim_beach', { beach_name: beach, uname: uname })
+                 .then(function(){ return loadMembership(); });
+      })
+      .then(function(me){
+        btn.disabled = false;
+        if(!me) throw new Error(t('The beach was not created'));
+        document.getElementById('setupBack').classList.remove('show');
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('app').classList.add('ready');
+        applyPermissions();
+        startUp();
+      })
+      .then(null, function(ex){
+        btn.disabled = false;
+        errEl.textContent = authMessage(ex);
+        errEl.style.display = 'block';
+      });
+  }
+
+  /* ---------------------------------------------------------------- users -- */
+
+  var PERM_LIST = [
+    ['edit_layout',  'Move and add beds'],
+    ['set_status',   'Change bed status'],
+    ['edit_zones',   'Draw zones'],
+    ['see_money',    'See takings'],
+    ['edit_prices',  'Change prices'],
+    ['manage_users', 'Manage people']
+  ];
+
+  /* The creation form's ticks come from PERM_LIST too — one list, so a
+     permission can never appear on the row and be missing from the form. */
+  function renderNewPerms(){
+    var box = document.getElementById('nuPerms');
+    if(!box) return;
+    box.innerHTML = PERM_LIST.map(function(pp){
+      var on = (pp[0] === 'edit_layout' || pp[0] === 'set_status');
+      return '<label class="us-perm"><input type="checkbox" data-newperm="' + pp[0] + '"' +
+             (on ? ' checked' : '') + '><span>' + esc(t(pp[1])) + '</span></label>';
+    }).join('');
+  }
+  function newPerms(){
+    var out = {};
+    document.querySelectorAll('#nuPerms input[data-newperm]').forEach(function(b){
+      out[b.getAttribute('data-newperm')] = b.checked;
+    });
+    return out;
+  }
+
+  function renderUsers(){
+    var list = document.getElementById('usersList');
+    list.innerHTML = '<div class="us-empty">' + esc(t('Loading…')) + '</div>';
+    SB.select('memberships', {
+      select: 'user_id,role,username,staff_name,can_edit_layout,can_set_status,' +
+              'can_edit_zones,can_see_money,can_edit_prices,can_manage_users',
+      beach_id: 'eq.' + BEACH_ID, order: 'role.asc'
+    }).then(function(rows){
+      if(!rows.length){ list.innerHTML = '<div class="us-empty">' + esc(t('Nobody yet')) + '</div>'; return; }
+      list.innerHTML = rows.map(function(r){
+        var mine = r.user_id === SB.userId();
+        var perms = PERM_LIST.map(function(pp){
+          var on = r.role === 'owner' || r['can_' + pp[0]];
+          return '<label class="us-perm' + (r.role === 'owner' ? ' locked' : '') + '">' +
+                 '<input type="checkbox" data-uid="' + esc(r.user_id) + '" data-perm="' + pp[0] + '"' +
+                 (on ? ' checked' : '') + (r.role === 'owner' ? ' disabled' : '') + '>' +
+                 '<span>' + esc(t(pp[1])) + '</span></label>';
+        }).join('');
+        return '<div class="us-row">' +
+          '<div class="us-head"><b>' + esc(r.username || r.staff_name || '—') + '</b>' +
+          '<span class="us-rank">' + esc(t(r.role === 'owner' ? 'Owner' : r.role === 'manager' ? 'Manager' : 'Worker')) + '</span>' +
+          (mine ? '<span class="us-you">' + esc(t('you')) + '</span>' : '') +
+          (r.role === 'owner' ? '' : '<button class="us-del" data-del="' + esc(r.user_id) + '">' + esc(t('Remove')) + '</button>') +
+          '</div><div class="us-perms">' + perms + '</div></div>';
+      }).join('');
+    }, function(ex){
+      list.innerHTML = '<div class="us-empty">' + esc((ex && ex.message) || t('Could not load')) + '</div>';
+    });
+  }
+
+  function addUser(){
+    var uname = document.getElementById('nuUser').value.trim();
+    var pass  = document.getElementById('nuPass').value;
+    var errEl = document.getElementById('nuError');
+    var btn   = document.getElementById('nuGo');
+
+    if(!/^[a-zA-Z0-9._-]{2,24}$/.test(uname)){
+      errEl.textContent = t('Letters and numbers, 2 to 24 characters');
+      errEl.style.display = 'block'; return;
+    }
+    if(pass.length < 6){
+      errEl.textContent = t('Use at least six characters');
+      errEl.style.display = 'block'; return;
+    }
+    errEl.style.display = 'none';
+    btn.disabled = true;
+
+    /* Whatever was ticked on the form, and nothing more. Someone given the
+       people permission becomes a manager, because that is what it means. */
+    var perms = newPerms();
+    SB.createUser(uname, pass).then(function(uid){
+      return SB.rpc('add_member', {
+        b: BEACH_ID, uname: uname, uid: uid,
+        rank: perms.manage_users ? 'manager' : 'worker',
+        p_layout: !!perms.edit_layout,  p_status: !!perms.set_status,
+        p_zones:  !!perms.edit_zones,   p_money:  !!perms.see_money,
+        p_prices: !!perms.edit_prices,  p_users:  !!perms.manage_users
+      });
+    }).then(function(){
+      btn.disabled = false;
+      document.getElementById('nuUser').value = '';
+      document.getElementById('nuPass').value = '';
+      renderNewPerms();                     /* back to the starting ticks */
+      toast(t('Account created'));
+      renderUsers();
+    }, function(ex){
+      btn.disabled = false;
+      errEl.textContent = authMessage(ex);
+      errEl.style.display = 'block';
+    });
+  }
+
+  function changeOwnLogin(){
+    var uname = document.getElementById('myUser').value.trim();
+    var pass  = document.getElementById('myPass').value;
+    var errEl = document.getElementById('myError');
+    var btn   = document.getElementById('myGo');
+
+    if(!uname && !pass){
+      errEl.textContent = t('Nothing to change'); errEl.style.display = 'block'; return;
+    }
+    if(uname && !/^[a-zA-Z0-9._-]{2,24}$/.test(uname)){
+      errEl.textContent = t('Letters and numbers, 2 to 24 characters');
+      errEl.style.display = 'block'; return;
+    }
+    if(pass && pass.length < 6){
+      errEl.textContent = t('Use at least six characters'); errEl.style.display = 'block'; return;
+    }
+    errEl.style.display = 'none';
+    btn.disabled = true;
+
+    var chain = Promise.resolve();
+    if(pass)  chain = chain.then(function(){ return SB.setOwnPassword(pass); });
+    if(uname) chain = chain.then(function(){ return SB.setOwnUsername(uname); })
+                           .then(function(){
+                             return SB.update('memberships',
+                               { username: uname.toLowerCase(), staff_name: uname },
+                               { beach_id: 'eq.' + BEACH_ID, user_id: 'eq.' + SB.userId() });
+                           });
+
+    chain.then(function(){
+      btn.disabled = false;
+      document.getElementById('myPass').value = '';
+      toast(t('Sign-in details updated'));
+      return loadMembership().then(renderUsers);
+    }, function(ex){
+      btn.disabled = false;
+      errEl.textContent = (ex && ex.message) || t('Could not update that');
+      errEl.style.display = 'block';
+    });
+  }
+
+  /* ---- wiring ---- */
+  document.getElementById('setupBtn').addEventListener('click', function(){
+    document.getElementById('setupBack').classList.add('show');
+    document.getElementById('suBeach').focus();
+  });
+  document.getElementById('suCancel').addEventListener('click', function(){
+    document.getElementById('setupBack').classList.remove('show');
+  });
+  document.getElementById('suGo').addEventListener('click', runSetup);
+  document.getElementById('usersRefresh').addEventListener('click', renderUsers);
+  document.getElementById('nuGo').addEventListener('click', addUser);
+  document.getElementById('myGo').addEventListener('click', changeOwnLogin);
+
+  /* Permission tick boxes and removals, delegated so the list can re-render. */
+  document.getElementById('usersList').addEventListener('change', function(e){
+    var box = e.target.closest('input[data-perm]');
+    if(!box) return;
+    var patch = {}; patch['can_' + box.getAttribute('data-perm')] = box.checked;
+    SB.update('memberships', patch,
+      { beach_id: 'eq.' + BEACH_ID, user_id: 'eq.' + box.getAttribute('data-uid') })
+      .then(null, function(ex){
+        box.checked = !box.checked;
+        toast((ex && ex.message) || t('Could not change that'));
+      });
+  });
+  document.getElementById('usersList').addEventListener('click', function(e){
+    var btn = e.target.closest('[data-del]');
+    if(!btn) return;
+    var uid = btn.getAttribute('data-del');
+    SB.remove('memberships', { beach_id: 'eq.' + BEACH_ID, user_id: 'eq.' + uid })
+      .then(function(){ toast(t('Removed')); renderUsers(); },
+            function(ex){ toast((ex && ex.message) || t('Could not remove that')); });
+  });
+
   /* ================= NEW UI WIRING ================= */
 
   document.querySelectorAll('.tn-btn[data-view]').forEach(function(b){
@@ -18104,6 +19167,7 @@ var qrcode = function() {
       lang:   function(){ document.getElementById('langBtn').click(); },
       sfx:    function(){ document.getElementById('sfxBtn').click(); },
       fs:     function(){ document.getElementById('fsBtn').click(); },
+      users:  function(){ setView('people'); },
       logout: function(){ document.getElementById('logoutBtn').click(); }
     };
     sheet.querySelectorAll('.ms-row').forEach(function(r){
@@ -18492,6 +19556,10 @@ var qrcode = function() {
     beds = defaultBeds(); selectedId = null; currentLayoutId = null;
     syncBeds(); renderAll(); toast('Demo layout restored');
     persist();
+  });
+
+  document.getElementById('openingBtn').addEventListener('click', function(){
+    saveOpeningPreset();
   });
 
   document.getElementById('saveLayoutBtn').addEventListener('click', function(){

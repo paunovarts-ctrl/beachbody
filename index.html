@@ -19743,8 +19743,32 @@ var qrcode = function() {
      nothing to dismiss, and no reload in the middle of somebody's shift. */
   if('serviceWorker' in navigator && location.protocol !== 'file:'){
     window.addEventListener('load', function(){
+      /* Whether there was already a worker in charge decides what a change of
+         controller means: the first install is not an update. */
+      var hadController = !!navigator.serviceWorker.controller;
+      var reloading = false;
+
       navigator.serviceWorker.register('sw.js')
+        .then(function(reg){
+          /* A phone that lives on a home screen can run one build for days.
+             Ask for a new one every time it comes back to the foreground —
+             which, on a beach, is every time it comes out of a pocket. */
+          document.addEventListener('visibilitychange', function(){
+            if(!document.hidden) reg.update().catch(function(){});
+          });
+          reg.update().catch(function(){});
+        })
         .catch(function(){ /* app runs fine without it, just not offline */ });
+
+      /* The worker calls skipWaiting(), so a new build can take charge in the
+         middle of a session. Without this the page keeps running the old
+         JavaScript against the new cache, which is how a phone ends up showing
+         yesterday's app and not saving anything. */
+      navigator.serviceWorker.addEventListener('controllerchange', function(){
+        if(!hadController || reloading) return;
+        reloading = true;
+        location.reload();
+      });
     });
   }
 

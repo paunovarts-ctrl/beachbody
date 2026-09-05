@@ -3,7 +3,7 @@
    the whole thing runs with no signal at all. That matters: the staff using
    this are standing on sand, and Materada does not have reliable coverage.   */
 
-const VERSION = 'bbm-v4';
+const VERSION = 'bbm-v5';
 const SHELL   = VERSION + '-shell';
 
 /* Everything needed to cold-start the app with the network switched off. */
@@ -62,6 +62,11 @@ self.addEventListener('fetch', event => {
 
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;   // never touch cross-origin
+
+  /* Vercel's own endpoints — analytics and its beacon. Same origin, so the
+     cache-first rule below would otherwise pin one copy of the script forever
+     and answer it from disk after Vercel had replaced it. Left to the network. */
+  if (url.pathname.startsWith('/_vercel/')) return;
 
   /* Navigations: network first, so a redeploy is picked up on the next launch,
      but fall straight back to the cached shell when there is no signal. */

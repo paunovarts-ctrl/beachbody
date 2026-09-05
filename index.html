@@ -17787,6 +17787,68 @@ var qrcode = function() {
     'Incorrect username or password':'Netočno korisničko ime ili lozinka',
     'Operator':'Operater','Passcode':'Lozinka','Enter control panel':'Uđi u upravljačku ploču',
     'Live':'Uživo','Saved':'Spremljeno','✓ Saved':'✓ Spremljeno',
+    /* ---- People, accounts and the server. Everything added when the beach
+       moved onto Supabase; without these the whole screen stays English. ---- */
+    'People':'Osoblje',
+    'Who works here and what they may do':'Tko radi na plaži i što smije',
+    'Everyone on this beach':'Svi na ovoj plaži',
+    'Refresh':'Osvježi',
+    'Tick what each person is allowed to do. Changes save the moment you tick them, and the beach itself refuses anything this screen gets wrong.':'Označi što tko smije raditi. Promjene se spremaju odmah, a sama plaža odbija sve što ovaj zaslon krivo postavi.',
+    'Add someone':'Dodaj osobu',
+    'Tick what this person will be allowed to do. The map and the beds are enough to work a shift; everything else is a decision.':'Označi što će ova osoba smjeti raditi. Karta i ležaljke dovoljni su za smjenu; sve ostalo je odluka.',
+    'Your own sign-in':'Tvoja prijava',
+    'Leave a box empty to keep what you have. Change the starting password before anyone else uses this.':'Ostavi polje prazno da zadržiš postojeće. Promijeni početnu lozinku prije nego što je itko drugi počne koristiti.',
+    'Move and add beds':'Pomicanje i dodavanje ležaljki',
+    'Change bed status':'Promjena statusa ležaljke',
+    'Draw zones':'Crtanje zona',
+    'See takings':'Pregled utržka',
+    'Change prices':'Promjena cijena',
+    'Manage people':'Upravljanje osobljem',
+    'Owner':'Vlasnik','Manager':'Voditelj','Worker':'Radnik','you':'ti',
+    'Username':'Korisničko ime','Password':'Lozinka',
+    'New username':'Novo korisničko ime','New password':'Nova lozinka',
+    'Add':'Dodaj','Save':'Spremi','Nobody yet':'Još nikoga','Loading…':'Učitavanje…',
+    'Account created':'Račun kreiran','Removed':'Uklonjeno',
+    'Sign-in details updated':'Podaci za prijavu ažurirani',
+    'That username is taken':'To korisničko ime je zauzeto',
+    'Use at least six characters':'Koristi barem šest znakova',
+    'Letters and numbers, 2 to 24 characters':'Slova i brojke, 2 do 24 znaka',
+    'Nothing to change':'Nema ništa za promjenu',
+    'Could not load':'Učitavanje nije uspjelo',
+    'Could not create that account':'Kreiranje računa nije uspjelo',
+    'Could not change that':'Promjena nije uspjela',
+    'Could not remove that':'Uklanjanje nije uspjelo',
+    'Could not update that':'Ažuriranje nije uspjelo',
+    'New accounts are switched off for this project':'Otvaranje novih računa je isključeno za ovaj projekt',
+    'Something went wrong':'Nešto je pošlo po zlu',
+
+    /* ---- signing in and first run ---- */
+    'Ask whoever runs your beach for an account.':'Zatraži račun od voditelja plaže.',
+    'Set up a new beach':'Postavi novu plažu',
+    'This creates the owner account and the beach it looks after. Do it once.':'Ovo kreira vlasnički račun i plažu kojom upravlja. Učini to jednom.',
+    'Beach name':'Naziv plaže','Owner username':'Korisničko ime vlasnika',
+    'Create the beach':'Kreiraj plažu','Fill in all three':'Ispuni sva tri polja',
+    'Could not set that up':'Postavljanje nije uspjelo',
+    'The beach was not created':'Plaža nije kreirana',
+    'Enter your username and password':'Unesi korisničko ime i lozinku',
+    'That username and password did not match':'Korisničko ime i lozinka se ne podudaraju',
+    'No connection — check the signal and try again':'Nema veze — provjeri signal i pokušaj ponovno',
+    'This app is not connected to a Supabase project yet':'Aplikacija još nije povezana sa Supabase projektom',
+    'That account is not attached to a beach yet':'Taj račun još nije vezan uz plažu',
+    'Could not load your account':'Učitavanje računa nije uspjelo',
+
+    /* ---- the beach on the server ---- */
+    'Beach uploaded — it is shared from now on':'Plaža je poslana — od sada je zajednička',
+    'New day — the beach is back to its opening layout':'Novi dan — plaža je vraćena na jutarnji raspored',
+    'Saved on this phone — no signal':'Spremljeno na ovom mobitelu — nema signala',
+    'Could not save to the server':'Spremanje na poslužitelj nije uspjelo',
+    'Set as opening layout':'Postavi kao jutarnji raspored',
+    'Opening layout':'Jutarnji raspored',
+    'Saved as the opening layout':'Spremljeno kao jutarnji raspored',
+    'Could not save the opening layout':'Spremanje jutarnjeg rasporeda nije uspjelo',
+    'You are not allowed to change the layout':'Nemaš ovlaštenje za mijenjanje rasporeda',
+    'There is nothing on the beach to save':'Na plaži nema ničega za spremiti',
+
     'Language':'Jezik','Fullscreen':'Cijeli zaslon','More':'Više',
     'Turn':'Okreni','Saving without bed angles until the database is updated':'Spremam bez kuta ležaljki dok se baza ne ažurira',
     'Close scanner':'Zatvori skener',
@@ -19086,7 +19148,7 @@ var qrcode = function() {
     box.innerHTML = PERM_LIST.map(function(pp){
       var on = (pp[0] === 'edit_layout' || pp[0] === 'set_status');
       return '<label class="us-perm"><input type="checkbox" data-newperm="' + pp[0] + '"' +
-             (on ? ' checked' : '') + '><span>' + esc(t(pp[1])) + '</span></label>';
+             (on ? ' checked' : '') + '><span>' + esc(pp[1]) + '</span></label>';
     }).join('');
   }
   function newPerms(){
@@ -19099,13 +19161,13 @@ var qrcode = function() {
 
   function renderUsers(){
     var list = document.getElementById('usersList');
-    list.innerHTML = '<div class="us-empty">' + esc(t('Loading…')) + '</div>';
+    list.innerHTML = '<div class="us-empty">' + esc('Loading…') + '</div>';
     SB.select('memberships', {
       select: 'user_id,role,username,staff_name,can_edit_layout,can_set_status,' +
               'can_edit_zones,can_see_money,can_edit_prices,can_manage_users',
       beach_id: 'eq.' + BEACH_ID, order: 'role.asc'
     }).then(function(rows){
-      if(!rows.length){ list.innerHTML = '<div class="us-empty">' + esc(t('Nobody yet')) + '</div>'; return; }
+      if(!rows.length){ list.innerHTML = '<div class="us-empty">' + esc('Nobody yet') + '</div>'; return; }
       list.innerHTML = rows.map(function(r){
         var mine = r.user_id === SB.userId();
         var perms = PERM_LIST.map(function(pp){
@@ -19113,17 +19175,17 @@ var qrcode = function() {
           return '<label class="us-perm' + (r.role === 'owner' ? ' locked' : '') + '">' +
                  '<input type="checkbox" data-uid="' + esc(r.user_id) + '" data-perm="' + pp[0] + '"' +
                  (on ? ' checked' : '') + (r.role === 'owner' ? ' disabled' : '') + '>' +
-                 '<span>' + esc(t(pp[1])) + '</span></label>';
+                 '<span>' + esc(pp[1]) + '</span></label>';
         }).join('');
         return '<div class="us-row">' +
           '<div class="us-head"><b>' + esc(r.username || r.staff_name || '—') + '</b>' +
-          '<span class="us-rank">' + esc(t(r.role === 'owner' ? 'Owner' : r.role === 'manager' ? 'Manager' : 'Worker')) + '</span>' +
-          (mine ? '<span class="us-you">' + esc(t('you')) + '</span>' : '') +
-          (r.role === 'owner' ? '' : '<button class="us-del" data-del="' + esc(r.user_id) + '">' + esc(t('Remove')) + '</button>') +
+          '<span class="us-rank">' + esc(r.role === 'owner' ? 'Owner' : r.role === 'manager' ? 'Manager' : 'Worker') + '</span>' +
+          (mine ? '<span class="us-you">' + esc('you') + '</span>' : '') +
+          (r.role === 'owner' ? '' : '<button class="us-del" data-del="' + esc(r.user_id) + '">' + esc('Remove') + '</button>') +
           '</div><div class="us-perms">' + perms + '</div></div>';
       }).join('');
     }, function(ex){
-      list.innerHTML = '<div class="us-empty">' + esc((ex && ex.message) || t('Could not load')) + '</div>';
+      list.innerHTML = '<div class="us-empty">' + esc((ex && ex.message) || 'Could not load') + '</div>';
     });
   }
 

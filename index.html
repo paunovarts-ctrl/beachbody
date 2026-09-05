@@ -16458,7 +16458,7 @@ var qrcode = function() {
             persist();
           });
         }
-      }).then(pullDay).then(function(){
+      }).then(pullDay).then(pullHistory).then(function(){
         renderAll();
         startSpotPolling();
       });
@@ -16505,7 +16505,10 @@ var qrcode = function() {
 
     if(!sections.length) sections = defaultSections();
     migrateSections(); migrateItems(); migrateDay();
-    if(!dayHistory.length) dayHistory = demoHistory();
+    /* Invented history is a demo feature, and on a real beach it is a lie:
+       nine days of takings that never happened, different on every phone. Only
+       when there is no beach behind the app — that is, nothing real to show. */
+    if(!dayHistory.length && !BEACH_ID) dayHistory = demoHistory();
     syncSettingsUI();
     renderAll();
     /* A day banked by the rollover above only exists in memory until something
@@ -18889,6 +18892,32 @@ var qrcode = function() {
               DAY_Q.bed += b; DAY_Q.umb += u; DAY_Q.occ = Math.max(DAY_Q.occ, o);
               DAY_Q.sending = false;
             });
+  }
+
+  /* Past days, from the server rather than from this phone's memory, so a new
+     device shows the beach's history instead of a blank chart. */
+  function pullHistory(){
+    if(!BEACH_ID || !can('see_money')) return Promise.resolve(false);
+    return SB.select('days', {
+      select: 'day,ci_bed,ci_umbrella,peak_occ,revenue,currency,total_spots',
+      beach_id: 'eq.' + BEACH_ID, day: 'lt.' + todayKey(),
+      order: 'day.asc', limit: 400
+    }).then(function(rows){
+      dayHistory = rows.map(function(r){
+        var ciB = r.ci_bed || 0, ciU = r.ci_umbrella || 0;
+        return {
+          date: r.day, checkIns: ciB + ciU, ciBed: ciB, ciUmb: ciU,
+          peakOcc: r.peak_occ || 0,
+          /* revenue is only written when a day is closed; price it now if not */
+          revenue: (r.revenue != null) ? +r.revenue
+                   : Math.round((ciB * settings.price + ciU * settings.umbPrice) * 100) / 100,
+          currency: r.currency || settings.currency,
+          totalBeds: r.total_spots || beds.length
+        };
+      });
+      persist();
+      return true;
+    }, function(){ return false; });
   }
 
   /* Only for those allowed to see money — a worker's app never asks. */

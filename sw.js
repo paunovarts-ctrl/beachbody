@@ -3,7 +3,7 @@
    the whole thing runs with no signal at all. That matters: the staff using
    this are standing on sand, and Materada does not have reliable coverage.   */
 
-const VERSION = 'bbm-v5';
+const VERSION = 'bbm-v6';
 const SHELL   = VERSION + '-shell';
 
 /* Everything needed to cold-start the app with the network switched off. */
@@ -56,6 +56,13 @@ const isNav = req =>
   req.mode === 'navigate' ||
   (req.method === 'GET' && (req.headers.get('accept') || '').includes('text/html'));
 
+/* Which navigations are the app itself. The sales page sits on the same
+   origin and is therefore served by this worker too, and the rule below
+   writes whatever a navigation returned into the one slot the staff's
+   offline app cold-starts from. Without this test, a single visit to
+   /sell.html would leave the beach booting a sales page with no signal. */
+const isShell = pathname => pathname === '/' || pathname === '/index.html';
+
 self.addEventListener('fetch', event => {
   const req = event.request;
   if (req.method !== 'GET') return;
@@ -71,14 +78,24 @@ self.addEventListener('fetch', event => {
   /* Navigations: network first, so a redeploy is picked up on the next launch,
      but fall straight back to the cached shell when there is no signal. */
   if (isNav(req)) {
+    const shell = isShell(url.pathname);
     event.respondWith((async () => {
       try {
         const preload = await event.preloadResponse;
         const res = preload || await fetch(req);
-        const cache = await caches.open(SHELL);
-        cache.put('./index.html', res.clone());
+        if (shell) {
+          const cache = await caches.open(SHELL);
+          cache.put('./index.html', res.clone());
+        }
         return res;
       } catch (e) {
+        /* Any other page is a page for someone with signal. Handing it the
+           app shell instead would be a stranger silently getting the beach. */
+        if (!shell) {
+          return new Response('Offline.', {
+            status: 503, headers: { 'Content-Type': 'text/plain' }
+          });
+        }
         const cache = await caches.open(SHELL);
         return (await cache.match('./index.html')) ||
                (await cache.match('./')) ||

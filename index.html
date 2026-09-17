@@ -2582,6 +2582,47 @@ svg.leaflet-image-layer.leaflet-interactive path {
     .stage-head{display:none;}
   }
 
+
+/* ===== DEMO RIBBON =====
+   Only ever on screen with ?demo=1. Fixed and centred at the top, which is
+   the one strip both layouts leave empty: the desktop rail runs down the
+   left, the phone's tab bar sits along the bottom. */
+#demoBadge{position:fixed;z-index:9000;left:50%;transform:translateX(-50%);
+  top:calc(env(safe-area-inset-top,0px) + 10px);
+  display:flex;align-items:center;gap:9px;
+  padding:7px 8px 7px 12px;border-radius:999px;
+  background:var(--float,var(--card,#fff));border:1px solid var(--line,#dfe3e8);
+  box-shadow:0 6px 24px rgba(8,22,40,.16);
+  color:var(--ink,#12212f);text-decoration:none;
+  font:600 12px/1.25 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  max-width:calc(100vw - 24px);}
+/* display:flex above beats the browser's own [hidden]{display:none}, so the
+   ribbon has to be told again -- without this it rides along on the real app
+   that staff sign in to, which is the one place it must never appear. */
+#demoBadge[hidden]{display:none;}
+#demoBadge .db-dot{width:8px;height:8px;border-radius:50%;background:var(--occ,#e0563a);
+  flex-shrink:0;}
+#demoBadge .db-txt{display:flex;flex-direction:column;gap:1px;min-width:0;}
+#demoBadge .db-txt b{font-weight:750;letter-spacing:.01em;white-space:nowrap;}
+#demoBadge .db-txt i{font-style:normal;font-weight:500;font-size:11px;color:var(--ink-3,#5d6b7a);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+#demoBadge .db-cta{flex-shrink:0;padding:5px 10px;border-radius:999px;
+  background:var(--accent,#3987e5);color:var(--on-accent,#fff);font-weight:700;font-size:11.5px;}
+#demoBadge:hover .db-cta{background:var(--accent-deep,#2b6fc4);}
+/* On a phone the top strip is the page title, so the ribbon moves down to sit
+   just above the tab bar -- the one band of the screen nothing else claims. */
+@media (max-width:520px){
+  #demoBadge .db-txt i{display:none;}
+  #demoBadge{top:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 62px);
+    padding:5px 6px 5px 11px;font-size:11.5px;gap:8px;}
+}
+@media (prefers-reduced-motion:no-preference){
+  #demoBadge .db-dot{animation:dbPulse 2.4s ease-in-out infinite;}
+}
+@keyframes dbPulse{50%{opacity:.4;}}
+/* A demo has no session to end, and signing out would only drop the visitor
+   on a login screen they cannot get past. */
+body.demo #logoutBtn{display:none;}
 </style>
 </head>
 <body>
@@ -2611,6 +2652,13 @@ svg.leaflet-image-layer.leaflet-interactive path {
 </div>
 
 <!-- ===== APP ===== -->
+
+<!-- Shown only under ?demo=1 ; see DEMO MODE in the script below. -->
+<a id="demoBadge" href="./sell.html" hidden>
+  <span class="db-dot"></span>
+  <span class="db-txt"><b>Live demo</b><i>Sample beach &mdash; touch anything you like</i></span>
+  <span class="db-cta">What&nbsp;is&nbsp;this&nbsp;&rsaquo;</span>
+</a>
 
 <div id="splash">
   <div class="sp-stack">
@@ -15632,6 +15680,35 @@ var qrcode = function() {
     key: 'sb_publishable_4wrmjQlcFcZiYdE8UU1npg_CooICM7e'
   };
 
+  /* =========================================================
+     DEMO MODE
+
+     Someone who arrived from a link has no account and is not going to ask
+     for one before deciding whether the app is worth a reply. ?demo=1 hands
+     them the owner's view of a beach already in service: the map, the
+     takings, the history, the staff list, every control live.
+
+     It cannot touch anything real. BEACH_ID is left null, so the whole server
+     half of the app stays switched off and no request leaves the browser; the
+     few buttons that would have written somewhere say so rather than failing
+     with a database error. The cache sits under its own key and is wiped on
+     the way in, so a demo never reads or overwrites a real install on the
+     same phone, and every visitor starts from the same sand.
+     ========================================================= */
+  var DEMO = false, EMBED = false;
+  try {
+    DEMO  = /(^|[?&])demo=1(&|$)/.test(location.search);
+    /* The sales page runs the demo inside a phone frame. The ribbon there
+       would be a button pointing back at the page it is already sitting in. */
+    EMBED = /(^|[?&])embed=1(&|$)/.test(location.search);
+  } catch(e){ DEMO = false; EMBED = false; }
+
+  function demoBlock(){
+    if(!DEMO) return false;
+    toast(t('Not in the demo \u2014 that button writes to a real beach'));
+    return true;
+  }
+
   var SB = (function(){
     var CFG_KEY  = 'bbm.sb.config';
     var SESS_KEY = 'bbm.sb.session';
@@ -16004,7 +16081,49 @@ var qrcode = function() {
      what gets an app abandoned, so a shift stays signed in for the day.
      Deferred to a task rather than called here: the rest of this file still
      has to run its wiring, and startUp() depends on it. */
-  if(sessionAlive()) setTimeout(enterApp, 0);
+  /* A demo needs no sign-in, so it goes straight in wearing the owner's
+     permissions: the worker's view hides the takings and the history, which
+     is most of what there is to show. */
+  function enterDemo(){
+    ME = { role:'owner', username:'demo', staff_name:'Demo', beach_id:null };
+    document.body.classList.add('demo');
+    var badge = document.getElementById('demoBadge');
+    if(badge && !EMBED) badge.hidden = false;
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('app').classList.add('ready');
+    applyPermissions();
+    seedDemoDay();
+    startUp();
+  }
+
+  /* A beach at two in the afternoon rather than one at dawn. An empty day
+     reads as a broken app to someone who has never seen this working, so the
+     demo opens mid-shift: the morning set-up all but finished, guests through
+     since opening, takings on the board. The figures agree with the map --
+     ten spots still occupied, out of a busier morning. */
+  function seedDemoDay(){
+    day = newDay();
+    day.ci = { bed: 31, umbrella: 12 };
+    day.peakOcc = 38;
+    beds.forEach(function(b, i){ if(i % 17 !== 3) day.setup[b.id] = true; });
+  }
+
+  /* A staff list to hang the permission tick boxes off. The real one comes
+     from a table the demo deliberately cannot reach. */
+  function demoStaff(){
+    return [
+      { user_id:'demo-owner', role:'owner', username:'admin', staff_name:'Owner' },
+      { user_id:'demo-1', role:'staff', username:'marko', staff_name:'Marko \u2014 morning shift',
+        can_set_status:true, can_edit_layout:true, can_edit_zones:true },
+      { user_id:'demo-2', role:'staff', username:'petra', staff_name:'Petra \u2014 afternoon shift',
+        can_set_status:true },
+      { user_id:'demo-3', role:'staff', username:'luka', staff_name:'Luka \u2014 beds and bar',
+        can_set_status:true, can_see_money:true }
+    ];
+  }
+
+  if(DEMO) setTimeout(enterDemo, 0);
+  else if(sessionAlive()) setTimeout(enterApp, 0);
   /* the map artwork and the unused aerial plate were removed: the app only
      ever renders SAT_URL, and generating the other two cost ~630 KB and a
      full SVG build on every page load. */
@@ -16235,7 +16354,11 @@ var qrcode = function() {
 
 
   /* ---- persistence: keeps the layout after you close the browser ---- */
-  var STORE_KEY = 'shoredesk.layout.v3';
+  /* The demo gets its own drawer, emptied on the way in: a visitor must not
+     read a real beach's takings off a shared phone, and must not leave their
+     poking about behind for the next one. */
+  var STORE_KEY = DEMO ? 'shoredesk.demo.v1' : 'shoredesk.layout.v3';
+  if(DEMO) try { localStorage.removeItem(STORE_KEY); } catch(e){}
   var storageOK = true;
   var rolledOver = null;   /* a previous day banked automatically at startup */
   function persist(){
@@ -19081,6 +19204,7 @@ var qrcode = function() {
   /* First run: create the owner, then claim a beach for them. Both go through
      GoTrue and a security-definer function, so no service key is involved. */
   function runSetup(){
+    if(demoBlock()) return;
     var beach = document.getElementById('suBeach').value.trim();
     var uname = document.getElementById('suUser').value.trim();
     var pass  = document.getElementById('suPass').value;
@@ -19162,11 +19286,11 @@ var qrcode = function() {
   function renderUsers(){
     var list = document.getElementById('usersList');
     list.innerHTML = '<div class="us-empty">' + esc('Loading…') + '</div>';
-    SB.select('memberships', {
+    (DEMO ? Promise.resolve(demoStaff()) : SB.select('memberships', {
       select: 'user_id,role,username,staff_name,can_edit_layout,can_set_status,' +
               'can_edit_zones,can_see_money,can_edit_prices,can_manage_users',
       beach_id: 'eq.' + BEACH_ID, order: 'role.asc'
-    }).then(function(rows){
+    })).then(function(rows){
       if(!rows.length){ list.innerHTML = '<div class="us-empty">' + esc('Nobody yet') + '</div>'; return; }
       list.innerHTML = rows.map(function(r){
         var mine = r.user_id === SB.userId();
@@ -19190,6 +19314,7 @@ var qrcode = function() {
   }
 
   function addUser(){
+    if(demoBlock()) return;
     var uname = document.getElementById('nuUser').value.trim();
     var pass  = document.getElementById('nuPass').value;
     var errEl = document.getElementById('nuError');
@@ -19232,6 +19357,7 @@ var qrcode = function() {
   }
 
   function changeOwnLogin(){
+    if(demoBlock()) return;
     var uname = document.getElementById('myUser').value.trim();
     var pass  = document.getElementById('myPass').value;
     var errEl = document.getElementById('myError');
@@ -19288,6 +19414,7 @@ var qrcode = function() {
   document.getElementById('usersList').addEventListener('change', function(e){
     var box = e.target.closest('input[data-perm]');
     if(!box) return;
+    if(demoBlock()){ box.checked = !box.checked; return; }
     var patch = {}; patch['can_' + box.getAttribute('data-perm')] = box.checked;
     SB.update('memberships', patch,
       { beach_id: 'eq.' + BEACH_ID, user_id: 'eq.' + box.getAttribute('data-uid') })
@@ -19299,6 +19426,7 @@ var qrcode = function() {
   document.getElementById('usersList').addEventListener('click', function(e){
     var btn = e.target.closest('[data-del]');
     if(!btn) return;
+    if(demoBlock()) return;
     var uid = btn.getAttribute('data-del');
     SB.remove('memberships', { beach_id: 'eq.' + BEACH_ID, user_id: 'eq.' + uid })
       .then(function(){ toast(t('Removed')); renderUsers(); },

@@ -45,6 +45,12 @@ Demo login: operator `Admin1`, passcode `Admin`.
 - `manifest.webmanifest`, `sw.js`, `icons/` — what makes it installable and offline-capable
 - `beach-body-map.html` — redirect, kept so old links still work
 
+The repository also carries one page that is not part of the beach:
+
+- `barber33/` — the public site for Barber 33, a walk-in barbershop in Poreč.
+  A separate client and a separate product, sharing this deployment. See
+  `barber33/README.md`.
+
 ## A note on the login
 
 The gate keeps the beach's numbers off a screen a guest could pick up. It is not a security boundary: everything runs in the browser, so anyone who can open the page can read the data. Real accounts would need the cloud endpoint under **Day › Sync**.
